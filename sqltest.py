@@ -2,9 +2,6 @@ from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-import sqlite3
-conn = sqlite3.connect('kass.db')
-
 engine = create_engine('sqlite:///kass.db', echo=True)
 
 Base = declarative_base()
