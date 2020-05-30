@@ -4,15 +4,21 @@ import os
 import datetime
 
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView
-from PySide2.QtCore import QFile, QTimer
+from PySide2.QtCore import Qt, QFile, QTimer, QAbstractTableModel
 from PySide2.QtUiTools import QUiLoader
 
-username_read = "Stranger"
+username_read = "Guest"
+header = ['Period', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+courseTableList = [
+    ['9:00-12:00','CMon','CTue','CWed','CThur','CFri']
+]
 
 class UI_form_main(QWidget):
     def __init__(self):
         super(UI_form_main, self).__init__()
         self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read)
 
         self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
@@ -35,6 +41,8 @@ class UI_form_main(QWidget):
         timer.timeout.connect(self.updateCurrentTime)
         timer.start(1000)
 
+        self.updateTable()
+
     def load_ui(self):
         loader = QUiLoader()
         path = os.path.join(os.path.dirname(__file__), "form_main.ui")
@@ -46,13 +54,19 @@ class UI_form_main(QWidget):
     def updateCurrentTime(self):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
-    def addCourse(self, time, profname, date, no_students, name, courseid):
+    def addCourse(self):
         pass
 
-    def removeCourse(self, courseid):
+    def removeCourse(self):
         pass
+
+    def updateTable(self):
+        table_model = MyTableModel(self, courseTableList, header)
+        self.table_wholeSchedule.setModel(table_model)
+        self.table_wholeSchedule.resizeColumnsToContents()
 
     def generateTable(self):
+        self.updateTable()
         pass
 
     def exportPDF(self):
@@ -60,6 +74,30 @@ class UI_form_main(QWidget):
 
     def logOut(self):
         pass
+
+class MyTableModel(QAbstractTableModel):
+    def __init__(self, parent, mylist, header, *args):
+        QAbstractTableModel.__init__(self, parent, *args)
+        self.mylist = mylist
+        self.header = header
+
+    def rowCount(self, parent):
+        return len(self.mylist)
+
+    def columnCount(self, parent):
+        return len(self.mylist[0])
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        elif role != Qt.DisplayRole:
+            return None
+        return self.mylist[index.row()][index.column()]
+
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.header[col]
+        return None
 
 if __name__ == "__main__":
     app = QApplication([])
