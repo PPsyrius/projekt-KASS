@@ -7,7 +7,7 @@ from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTable
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
 
-from Global_var import *
+from gvar import *
 from sqliteDB import *
 
 class UI_form_login(QWidget):
@@ -108,7 +108,7 @@ class UI_form_main(QWidget):
         pass
 
     def updateTable(self):
-        table_model = MyTableModel(self, courseTableList, gvar.header)
+        table_model = MyTableModel(self, gvar.courseTableList, gvar.header)
         self.table_wholeSchedule.setModel(table_model)
 
     def generateTable(self):
@@ -160,7 +160,7 @@ class UI_form_main_guest(QWidget):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
     def updateTable(self):
-        table_model = MyTableModel(self, courseTableList, gvar.header)
+        table_model = MyTableModel(self, gvar.courseTableList, gvar.header)
         self.table_wholeSchedule.setModel(table_model)
 
     def exportPDF(self):
