@@ -4,14 +4,16 @@ import os
 import datetime
 
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView
-from PySide2.QtCore import Qt, QFile, QTimer, QAbstractTableModel
+from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
+
 
 username_read = "Guest"
 header = ['Period', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 courseTableList = [
     ['9:00-12:00','CMon','CTue','CWed','CThur','CFri']
 ]
+
 
 class UI_form_main(QWidget):
     def __init__(self):
@@ -63,7 +65,6 @@ class UI_form_main(QWidget):
     def updateTable(self):
         table_model = MyTableModel(self, courseTableList, header)
         self.table_wholeSchedule.setModel(table_model)
-        self.table_wholeSchedule.resizeColumnsToContents()
 
     def generateTable(self):
         self.updateTable()
@@ -74,6 +75,7 @@ class UI_form_main(QWidget):
 
     def logOut(self):
         pass
+
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -98,6 +100,7 @@ class MyTableModel(QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.header[col]
         return None
+
 
 if __name__ == "__main__":
     app = QApplication([])
