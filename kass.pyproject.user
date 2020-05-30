@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.12.1, 2020-05-30T20:14:27. -->
+<!-- Written by QtCreator 4.12.1, 2020-05-31T02:59:12. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -212,12 +212,12 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">form_main (on Web Browser)</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.D:/KMITL SE/Year 2 Term 2/SEP/projekt-KASS/UI_tableview/form_main.py</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/KMITL SE/Year 2 Term 2/SEP/projekt-KASS/UI_tableview/form_main.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">GUI (on Web Browser)</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.D:/KMITL SE/Year 2 Term 2/SEP/projekt-KASS/GUI.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/KMITL SE/Year 2 Term 2/SEP/projekt-KASS/GUI.py</value>
     <value type="bool" key="PythonEditor.RunConfiguation.Buffered">false</value>
     <value type="QString" key="PythonEditor.RunConfiguation.Interpreter"></value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">D:\KMITL SE\Year 2 Term 2\SEP\projekt-KASS\UI_tableview\form_main.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">D:\KMITL SE\Year 2 Term 2\SEP\projekt-KASS\GUI.py</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
