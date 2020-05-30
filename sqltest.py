@@ -50,7 +50,7 @@ print(q1)
 pof.fullname='Texas Valens'
 
 print(session.dirty)
-"""
+
 # Profs
 prof1 = Professor(profid="1060", fullname="Dr Visit", email="visit@kmitl.ac.th", password="kmitlvi1060")
 prof2 = Professor(profid="1061", fullname="Dr Ukrit", email="ukrit@kmitl.ac.th", password="kmitluk1061")
@@ -67,27 +67,28 @@ proflist = [prof1, prof2, prof3, prof4, prof5, prof6, prof7, prof8, prof9, prof1
 session.add_all(proflist)
 
 # Courses
-course1y1 = Course(courseid="1300", name="Introduction to Programming with Python", no_students=50, date=1, time=2, profname="Dr Visit")
-course10y1 = Course(courseid="1301", name="Introduction to Programming with Python Lab", no_students=50, date=2, time=2, profname="Dr Visit")
-course2y1 = Course(courseid="1302", name="C Programming", no_students=50, date=1, time=1, profname="Dr Ukrit")
-course9y1 = Course(courseid="1303", name="C Programming Lab", no_students=50, date=5, time=2, profname="Dr Ukrit")
+course1y1 = Course(courseid="1300", name="Introduction to Programming with Python", no_students=42, date=1, time=2, profname="Dr Visit")
+course10y1 = Course(courseid="1301", name="Introduction to Programming with Python Lab", no_students=42, date=2, time=2, profname="Dr Visit")
+course2y1 = Course(courseid="1302", name="C Programming", no_students=48, date=1, time=1, profname="Dr Ukrit")
+course9y1 = Course(courseid="1303", name="C Programming Lab", no_students=48, date=5, time=2, profname="Dr Ukrit")
 course3y1 = Course(courseid="1304", name="Calculus 1", no_students=50, date=2, time=1, profname="Dr Tui")
-course4y1 = Course(courseid="1305", name="Introduction to Logic", no_students=50, date=4, time=1, profname="Dr Natthapong")
-course5y1 = Course(courseid="1306", name="Basic Electricity", no_students=50, date=3, time=2, profname="Aj Michael")
-course8y1 = Course(courseid="1307", name="Basic Electricity Lab", no_students=50, date=4, time=2, profname="Aj Michael")
-course6y1 = Course(courseid="1308", name="Academic English 1", no_students=25, date=3, time=1, profname="Dr Academiceng")
+course4y1 = Course(courseid="1305", name="Introduction to Logic", no_students=38, date=4, time=1, profname="Dr Natthapong")
+course5y1 = Course(courseid="1306", name="Basic Electricity", no_students=44, date=3, time=2, profname="Aj Michael")
+course8y1 = Course(courseid="1307", name="Basic Electricity Lab", no_students=44, date=4, time=2, profname="Aj Michael")
+course6y1 = Course(courseid="1308", name="Academic English 1", no_students=21, date=3, time=1, profname="Dr Academiceng")
 
-course1y2 = Course(courseid="1309", name="Linear Algebra", no_students=50, date=2, time=2, profname="Dr Chaiwat")
-course2y2 = Course(courseid="1310", name="Advanced Object Oriented Programming", no_students=50, date=4, time=1, profname="Dr Veera")
-course7y2 = Course(courseid="1311", name="Advanced Object Oriented Programming Lab", no_students=50, date=4, time=2, profname="Dr Veera")
-course3y2 = Course(courseid="1312", name="Computer Organization and Assembly Language", no_students=50, date=3, time=1, profname="Dr Surin")
-course4y2 = Course(courseid="1313", name="Computer Organization and Assembly Language Lab", no_students=50, date=2, time=1, profname="Dr Surin")
-course5y2 = Course(courseid="1314", name="Data Structure and Algorithms", no_students=50, date=5, time=2, profname="Dr Natthapong")
-course6y2 = Course(courseid="1315", name="Data Structure and Algorithms Lab", no_students=50, date=1, time=2, profname="Dr Natthapong")
+course1y2 = Course(courseid="1309", name="Linear Algebra", no_students=41, date=2, time=2, profname="Dr Chaiwat")
+course2y2 = Course(courseid="1310", name="Advanced Object Oriented Programming", no_students=46, date=4, time=1, profname="Dr Veera")
+course7y2 = Course(courseid="1311", name="Advanced Object Oriented Programming Lab", no_students=46, date=4, time=2, profname="Dr Veera")
+course3y2 = Course(courseid="1312", name="Computer Organization and Assembly Language", no_students=49, date=3, time=1, profname="Dr Surin")
+course4y2 = Course(courseid="1313", name="Computer Organization and Assembly Language Lab", no_students=49, date=2, time=1, profname="Dr Surin")
+course5y2 = Course(courseid="1314", name="Data Structure and Algorithms", no_students=18, date=5, time=2, profname="Dr Natthapong")
+course6y2 = Course(courseid="1315", name="Data Structure and Algorithms Lab", no_students=18, date=1, time=2, profname="Dr Natthapong")
 courselist = [course1y1, course10y1, course2y1, course9y1, course3y1, course4y1, course5y1, course8y1, course6y1,
                 course1y2, course2y2, course7y2, course3y2, course4y2, course5y2, course6y2]
 
 session.add_all(courselist)
 
 session.commit()
+"""
 
