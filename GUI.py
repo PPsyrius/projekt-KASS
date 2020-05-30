@@ -14,6 +14,7 @@ courseTableList = [
     ['9:00-12:00','CMon','CTue','CWed','CThur','CFri']
 ]
 
+
 class UI_form_login(QWidget):
     def __init__(self):
         super(UI_form_login, self).__init__()
@@ -38,16 +39,18 @@ class UI_form_login(QWidget):
         loader.load(ui_file, self)
         ui_file.close()
 
-    def updateStatusMessage(self):
-        self.lb_logInStatus.setText("TEST FINISHED')
+    def updateStatusMessage(self, text):
+        self.lb_logInStatus.setText(text)
 
     def authenLogIn(self):
         print(self.le_email.text())
         print(self.le_password.text())
+        self.updateStatusMessage("Status: Login Attempted")
         pass
 
     def guestLogIn(self):
-        pass        
+        widget_menu.show()
+        widget_login.hide()    
 
 class UI_form_main(QWidget):
     def __init__(self):
@@ -108,7 +111,9 @@ class UI_form_main(QWidget):
         pass
 
     def logOut(self):
-        pass
+        username_read = "Guest"
+        widget_login.show()
+        widget_menu.hide()
 
 
 class MyTableModel(QAbstractTableModel):
@@ -138,7 +143,7 @@ class MyTableModel(QAbstractTableModel):
 
 if __name__ == "__main__":
     app = QApplication([])
-    #widget = UI_form_main()
-    widget = UI_form_login()
-    widget.show()
+    widget_menu = UI_form_main()
+    widget_login = UI_form_login()
+    widget_login.show()
     sys.exit(app.exec_())
