@@ -138,7 +138,7 @@ class UI_form_main_guest(QWidget):
         super(UI_form_main_guest, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Guess View')
+        self.setWindowTitle('KMITL Academic Scheduler System: Guest View')
 
         self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
