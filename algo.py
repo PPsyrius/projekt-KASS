@@ -28,33 +28,26 @@ def newScheduleTableList():
         if (room+1) % 10 == 0: room_name.append("IC" + str(room+1))
         else: room_name.append("IC0" + str(room+1))
 
-    for t in range(len(time_lst)):
-        if time_lst[t] == 1: time_lst[t] = time[0]
-        elif time_lst[t] == 2: time_lst[t] = time[1]
-        
     for d in range(len(date_lst)):
+        if time_lst[d] == 1: time_lst[d] = time[0]
+        elif time_lst[d] == 2: time_lst[d] = time[1]
+
         if date_lst[d] == 1: date_lst[d] = date[0]
         elif date_lst[d] == 2: date_lst[d] = date[1]
         elif date_lst[d] == 3: date_lst[d] = date[2]
         elif date_lst[d] == 4: date_lst[d] = date[3]
         elif date_lst[d] == 5: date_lst[d] = date[4]
 
-    for s in range(len(stud_lst)):
-        if stud_lst[s] is not None:
-            if stud_lst[s] >= 25: stud_lst[s] = "Lecture 50"
-            elif stud_lst[s] < 25: stud_lst[s] = "Lecture 25"
-            else: stud_lst[s] = "Exceed"
-
-    for i in range(len(stud_lst)):
-        if course_name[i] is not None:
-            if course_name[i][-3:] == "Lab":
-                stud_lst[i] = "Lab"
+        if stud_lst[d] is not None:
+            if stud_lst[d] >= 25: stud_lst[d] = "Lecture 50"
+            elif stud_lst[d] < 25: stud_lst[d] = "Lecture 25"
+            else: stud_lst[d] = "Exceed"
+        if course_name[d] is not None:
+            if course_name[d][-3:] == "Lab":
+                stud_lst[d] = "Lab"
 
     for l in range(len(stud_lst)):
         if time_lst[l] != None:
-            #display_lst[l] = date_lst[l] + "\t" + time_lst[l] + "\t" + course_name[l] + "\t" + course_id[l] + "\t" + prof_name[l] + "\t" + stud_lst[l]
-            #display_lst2[l] = stud_lst[l]+"\t"+course_id[l]+"\t"+course_name[l]+"\t"+prof_name[l]
-
             scheduleTableList.append( [date_lst[l],time_lst[l],course_name[l],course_id[l],prof_name[l],stud_lst[l]] )
 
 newScheduleTableList()

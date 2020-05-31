@@ -11,7 +11,7 @@ courseHeader = ['Course ID', 'Course Name', 'Class Capacity', 'Date', 'Period', 
 courseTableList = [
     []
 ]
-date = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 time = ["09:00-12:00", "13:00-16:00"]
 rooms = 5
 
