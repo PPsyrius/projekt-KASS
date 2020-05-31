@@ -3,7 +3,7 @@ import sys
 import os
 import datetime
 
-from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit
+from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
 
@@ -246,6 +246,8 @@ class UI_course_remove(QWidget):
     def previousPage(self):
         widget_menu.show()
         widget_course_remove.hide()
+        widget_course_add.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
 class UI_course_add(QWidget):
     def __init__(self):
@@ -255,11 +257,17 @@ class UI_course_add(QWidget):
         self.setWindowTitle('KMITL Academic Scheduler System: Add Course')
 
         self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
+        self.le_courseName = self.findChild(QLineEdit, 'le_courseName')
+        self.le_capacity = self.findChild(QLineEdit, 'le_capacity')
+        self.cb_date = self.findChild(QComboBox, 'cb_date')
+        self.cb_time = self.findChild(QComboBox, 'cb_time')
         self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
         self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_remove = self.findChild(QPushButton, 'bt_add')
+        self.bt_add = self.findChild(QPushButton, 'bt_add')
         self.table_courseList = self.findChild(QTableView, 'table_courseList')
 
+        self.cb_date.addItems(date)
+        self.cb_time.addItems(time)
         self.bt_back.clicked.connect(self.previousPage)
         self.bt_add.clicked.connect(self.addCourse)
 
@@ -267,7 +275,7 @@ class UI_course_add(QWidget):
 
     def load_ui(self):
         loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form_course_remove.ui")
+        path = os.path.join(os.path.dirname(__file__), "form_course_add.ui")
         ui_file = QFile(path)
         ui_file.open(QFile.ReadOnly)
         loader.load(ui_file, self)
@@ -294,25 +302,40 @@ class UI_course_add(QWidget):
 
     def addCourse(self):
         courseID_inp = self.le_courseID.text()
+        courseName_inp = self.le_courseName.text()
+        capacity_inp = self.le_capacity.text()
+        date_inp = self.cb_date.currentIndex()+1
+        time_inp = self.cb_time.currentIndex()+1
 
         cd = session.query(Course).filter_by(courseid=courseID_inp).first()
+        cd2 = session.query(Course).filter_by(time=time_inp).filter_by(date=date_inp).filter_by(profname=username_read).first()
         
         if not courseTableList:
             self.updateStatusMessage("Error: No Course in DB by this User")
         elif courseID_inp=="":
             self.updateStatusMessage("Status: Table Updated") # Pull Data
-        elif not cd:
-            self.updateStatusMessage("Error: Invalid Course ID") # CourseID not exist
+        elif cd:
+            self.updateStatusMessage("Error: Course ID Exists") # CourseID exists
+        elif courseName_inp=="" or capacity_inp=="":
+            self.updateStatusMessage("Error: Blank Data Slots") # Blank slots
+        elif not capacity_inp.isdecimal():
+            self.updateStatusMessage("Error: Capacity must be Integer") # Capacity Not Integer
+        elif int(capacity_inp)<=0:
+            self.updateStatusMessage("Error: Capacity must be Positive") # <=0
+        elif cd2:
+            self.updateStatusMessage("Error: Timeslot Used") # Invalid Timeslot
         else:
-            self.updateStatusMessage("Status: Course Removed") # Success
-            session.delete(cd)
-            
+            self.updateStatusMessage("Status: Course Added") # Success
+            ca = Course(courseid=courseID_inp, name=courseName_inp, no_students=int(capacity_inp), date=date_inp, time=time_inp, profname=username_read)
+            session.add(ca)                     
         self.updateTable()            
         ##REMOVE_THIS##session.commit()
 
     def previousPage(self):
         widget_menu.show()
         widget_course_add.hide()
+        widget_course_add.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -345,6 +368,7 @@ if __name__ == "__main__":
     widget_menu_guest = UI_form_main_guest()
     widget_login = UI_form_login()
     widget_course_remove = UI_course_remove()
+    widget_course_add = UI_course_add()
 
     widget_login.show()
     sys.exit(app.exec_())
