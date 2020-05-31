@@ -7,8 +7,7 @@ from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTable
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
 
-from gvar import *
-from sqliteDB import *
+from algo import *
 
 class UI_form_login(QWidget):
     def __init__(self):
@@ -114,6 +113,10 @@ class UI_form_main(QWidget):
         widget_menu.hide()
 
     def updateTable(self):
+        global scheduleTableList
+        scheduleTableList = []
+
+        
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
 
@@ -122,7 +125,6 @@ class UI_form_main(QWidget):
         pass
 
     def exportPDF(self):
-        print(username_read)
         pass
 
     def logOut(self):
@@ -170,6 +172,8 @@ class UI_form_main_guest(QWidget):
     def updateTable(self):
         global scheduleTableList
         scheduleTableList = []
+
+        
         for s in session.query(Course).order_by(Course.courseid):
             sdone = ["","Test1\nTest2","","","Test3\nTest4\nTest5",""]
             scheduleTableList.append(sdone)
