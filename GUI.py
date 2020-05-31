@@ -113,12 +113,11 @@ class UI_form_main(QWidget):
         widget_menu.hide()
 
     def updateTable(self):
-        global scheduleTableList
-        scheduleTableList = []
-
-        
+        newScheduleTableList()
+            
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
+        self.table_wholeSchedule.resizeColumnsToContents()
 
     def generateTable(self):
         self.updateTable()
@@ -170,17 +169,11 @@ class UI_form_main_guest(QWidget):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
     def updateTable(self):
-        global scheduleTableList
-        scheduleTableList = []
-
-        
-        for s in session.query(Course).order_by(Course.courseid):
-            sdone = ["","Test1\nTest2","","","Test3\nTest4\nTest5",""]
-            scheduleTableList.append(sdone)
+        newScheduleTableList()
             
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
-        #self.table_wholeSchedule.resizeColumnsToContents()
+        self.table_wholeSchedule.resizeColumnsToContents()
 
     def exportPDF(self):
         pass

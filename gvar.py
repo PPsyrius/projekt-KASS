@@ -5,7 +5,7 @@ username_read = "Guest"
 #scheduleHeader = ['Period', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 scheduleHeader = ['Date', 'Time', 'ClassID', 'Class', 'Lecturer', 'Location']
 scheduleTableList = [
-    []
+    ["","","","","",""]
 ]
 courseHeader = ['Course ID', 'Course Name', 'Class Capacity', 'Date', 'Period', 'Professor']
 courseTableList = [
