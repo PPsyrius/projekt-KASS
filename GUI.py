@@ -99,15 +99,32 @@ class UI_form_main(QWidget):
 
     def updateCurrentTime(self):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.updateDB()
+
+    def updateDB(self):
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+        self.lb_welcome.setText("Welcome, " + username_read )
+
+    def updateCourseList(self):
+        global courseTableList
+        courseTableList = []
+        for c in session.query(Course).order_by(Course.courseid).filter_by(profname=username_read):
+            c_done = []
+            c_done.extend([c.courseid,c.name,c.no_students])
+            c_done.extend([date[c.date-1],time[c.time-1],c.profname])
+            courseTableList.append(c_done)
 
     def addCourse(self):
+        self.updateCourseList()
         pass
 
     def removeCourse(self):
-        pass
+        self.updateCourseList()
+        widget_course_remove.show()
+        widget_menu.hide()
 
     def updateTable(self):
-        table_model = MyTableModel(self, courseTableList, header)
+        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
 
     def generateTable(self):
@@ -161,7 +178,7 @@ class UI_form_main_guest(QWidget):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
     def updateTable(self):
-        table_model = MyTableModel(self, courseTableList, header)
+        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
 
     def exportPDF(self):
@@ -173,6 +190,72 @@ class UI_form_main_guest(QWidget):
         widget_login.show()
         widget_menu_guest.hide()
 
+class UI_course_remove(QWidget):
+    def __init__(self):
+        super(UI_course_remove, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Remove Course')
+
+        self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
+        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
+        self.bt_back = self.findChild(QPushButton, 'bt_back')
+        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
+        self.table_courseList = self.findChild(QTableView, 'table_courseList')
+
+        self.bt_back.clicked.connect(self.previousPage)
+        self.bt_remove.clicked.connect(self.removeCourse)
+
+        self.updateStatusMessage("Click Remove Once To Pull Data")
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_course_remove.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateStatusMessage(self, text):
+        self.lb_statusMessage.setText(text)
+
+    def updateDB(self):
+        global courseTableList
+        courseTableList = []
+        for c in session.query(Course).order_by(Course.courseid).filter_by(profname=username_read):
+            c_done = []
+            c_done.extend([c.courseid,c.name,c.no_students])
+            c_done.extend([date[c.date-1],time[c.time-1],c.profname])
+            courseTableList.append(c_done)
+
+    def updateTable(self):
+        self.updateDB()
+
+        table_model = MyTableModel(self, courseTableList, courseHeader)
+        self.table_courseList.setModel(table_model)
+        self.table_courseList.resizeColumnsToContents()
+
+    def removeCourse(self):
+        courseID_inp = self.le_courseID.text()
+
+        cd = session.query(Course).filter_by(courseid=courseID_inp).first()
+        
+        if not courseTableList:
+            self.updateStatusMessage("Error: No Course in DB by this User")
+        elif courseID_inp=="":
+            self.updateStatusMessage("Status: Table Updated") # Pull Data
+        elif not cd:
+            self.updateStatusMessage("Error: Invalid Course ID") # CourseID not exist
+        else:
+            self.updateStatusMessage("Status: Course Removed") # Success
+            session.delete(cd)
+            
+        self.updateTable()            
+        ##REMOVE_THIS##session.commit()
+
+    def previousPage(self):
+        widget_menu.show()
+        widget_course_remove.hide()
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -204,6 +287,7 @@ if __name__ == "__main__":
     widget_menu = UI_form_main()
     widget_menu_guest = UI_form_main_guest()
     widget_login = UI_form_login()
+    widget_course_remove = UI_course_remove()
 
     widget_login.show()
     sys.exit(app.exec_())
