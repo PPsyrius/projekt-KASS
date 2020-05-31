@@ -46,66 +46,50 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="lb_currentDateTime">
+      <widget class="QLineEdit" name="le_courseID">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="bt_remove">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>Current Date lmao</string>
+        <string>Remove Course ID</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lb_welcome">
+      <widget class="QPushButton" name="bt_back">
        <property name="font">
         <font>
-         <pointsize>14</pointsize>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>Welcome, Guest.</string>
+        <string>Back</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>30</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bt_exportPDF">
+      <widget class="QLabel" name="lb_statusMessage">
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>Export PDF</string>
+        <string>PutStatusMessageHere</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bt_logOut">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Log out</string>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -142,6 +126,21 @@
    </item>
    <item>
     <widget class="QTableView" name="table_courseList">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>600</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <pointsize>12</pointsize>
