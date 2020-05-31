@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # Global Variables are stored here
 
-username_read = "Guess
+username_read = "Guest"
 scheduleHeader = ['Period', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 scheduleTableList = [
     ['9:00-12:00','CMon','CTue','CWed','CThur','CFri']
