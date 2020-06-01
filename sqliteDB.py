@@ -62,7 +62,7 @@ class Course(Base):
     CourseName = Column(String)
     NoStudents = Column(Integer)
     ProfName = Column(String)
-    RoomType = Column(String) # ComLab, Lecture
+    RoomType = Column(String)  # ComLab, Lecture
 
     def __repr__(self):
         return "Course(CourseID = {}, CourseName = {}, NoStudents = {}, ProfName = {})".format(self.CourseID, self.CourseName, self.NoStudents, self.ProfName)
@@ -71,7 +71,7 @@ class Course(Base):
 class CourseTimeSlot(Base):
     __tablename__ = "coursetimeslots"
 
-    CourseID = Column(String)
+    CourseID = Column(String, primary_key=True)
     DateTime = Column(Integer)
 
     def __repr__(self):
