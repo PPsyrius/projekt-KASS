@@ -98,7 +98,7 @@ def NiceTimeTable():             # Use this to output the Nicely formatted time 
     time = ["09:00-12:00", "13:00-16:00"]
 
     for k, v in freeRoomDict.items():
-        print(k , v)
+        #print(k , v)
         for j in v:
             if isinstance(j, str):
                 c = session.query(Course).filter_by(CourseID=j).first()
@@ -108,23 +108,23 @@ def NiceTimeTable():             # Use this to output the Nicely formatted time 
                 newTimeTable = [k, date[d], time[t], j, c.CourseName, c.ProfName]
                 GeneratedTimeTable.append(newTimeTable)
 
-    print(GeneratedTimeTable)
+    #print(GeneratedTimeTable)
     return GeneratedTimeTable
-
-conflictTable.append('1300')
-conflictTable.append('1302')
 
 def NiceConflict():         # Use this to output a dict of professors with the conflicting classes
     courses = session.query(Course)
     ConflictDict = {}
-    conflictCourseList = []
 
-    print("Conflicting courses:", conflictTable)
+    #print("Conflicting courses:", conflictTable)
 
     for co in courses:
         if co.CourseID in conflictTable:
-            conflictCourseList.append("{} - {}".format(co.CourseID, co.CourseName))
-            ConflictDict[co.ProfName] = conflictCourseList
-    print(ConflictDict)
+            ConflictDict[co.ProfName] = []
 
-NiceConflict()
+    for co in courses:
+        if co.CourseID in conflictTable and co.ProfName in ConflictDict.keys():
+            ConflictDict[co.ProfName].append("{} - {}".format(co.CourseID, co.CourseName))
+
+    #print(ConflictDict)
+    return ConflictDict
+

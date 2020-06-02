@@ -63,4 +63,3 @@ for r in range(len(freeRoom)):
     print("Room", r, ":", freeRoom[r])
 
 print("Conflict courses:", conflictTable)
-
