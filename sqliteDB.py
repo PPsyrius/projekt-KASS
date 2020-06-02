@@ -21,7 +21,7 @@ class Admin(Base):
     Password = Column(String)
 
     def __repr__(self):
-        return "Professor(AdminID = {}, AdminName = {}, Email = {}, Password = {})".format(self.AdminID, self.AdminName, self.Email, self.Password)
+        return "Admin(AdminID = {}, AdminName = {}, Email = {}, Password = {})".format(self.AdminID, self.AdminName, self.Email, self.Password)
 
 
 class Professor(Base):
@@ -174,4 +174,21 @@ session.add_all(courseToAdd)
 session.add_all(courseTStoAdd)
 
 session.commit()
+
+
+toAdd = []
+
+prof1 = Professor(ProfID="1060", ProfName="Dr Visit", Email="visit@kmitl.ac.th", Password="1060")
+prof2 = Professor(ProfID="1061", ProfName="Dr Ukrit", Email="ukrit@kmitl.ac.th", Password="1061")
+prof3 = Professor(ProfID="1062", ProfName="Dr Tui", Email="ajtui@kmitl.ac.th", Password="1062")
+
+toAdd.append(prof1)
+toAdd.append(prof2)
+toAdd.append(prof3)
+
+admin1 = Admin(AdminID="8547", AdminName="Ad Min", Email="admin@kmitl.ac.th", Password="123")
+
+toAdd.append(admin1)
+session.add_all(toAdd)
 """
+

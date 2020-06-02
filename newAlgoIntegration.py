@@ -1,5 +1,22 @@
 from sqliteDB import *
 
+def readyToGenerate():      # Check if every course has at least one CourseTimeSlot
+    cIDcheck = []
+
+    for c in session.query(Course).order_by(Course.CourseID):
+        cIDcheck.append(c.CourseID)
+
+    for cts in session.query(CourseTimeSlot).order_by(CourseTimeSlot.CourseID):
+        if cts.CourseID in cIDcheck:
+            cIDcheck.remove(cts.CourseID)
+
+    if not cIDcheck:
+        return True
+    else:
+        return False
+
+
+
 courseTimeSlot = {}
 courseAvail = {}
 
@@ -74,9 +91,40 @@ for k, v in freeRoomDict.items():
 for k in courseAvail.keys():
     conflictTable.append(k)
 
-for k, v in freeRoomDict.items():
-    print(k , v)
+def NiceTimeTable():             # Use this to output the Nicely formatted time table
+    GeneratedTimeTable = []
+    schedule = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
+    date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    time = ["09:00-12:00", "13:00-16:00"]
 
-print("Conflict courses:", conflictTable)
+    for k, v in freeRoomDict.items():
+        print(k , v)
+        for j in v:
+            if isinstance(j, str):
+                c = session.query(Course).filter_by(CourseID=j).first()
 
+                d = schedule[v.index(j)] // 10 - 1
+                t = schedule[v.index(j)] % 10 - 1
+                newTimeTable = [k, date[d], time[t], j, c.CourseName, c.ProfName]
+                GeneratedTimeTable.append(newTimeTable)
 
+    print(GeneratedTimeTable)
+    return GeneratedTimeTable
+
+conflictTable.append('1300')
+conflictTable.append('1302')
+
+def NiceConflict():         # Use this to output a dict of professors with the conflicting classes
+    courses = session.query(Course)
+    ConflictDict = {}
+    conflictCourseList = []
+
+    print("Conflicting courses:", conflictTable)
+
+    for co in courses:
+        if co.CourseID in conflictTable:
+            conflictCourseList.append("{} - {}".format(co.CourseID, co.CourseName))
+            ConflictDict[co.ProfName] = conflictCourseList
+    print(ConflictDict)
+
+NiceConflict()
