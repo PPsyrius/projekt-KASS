@@ -1,6 +1,9 @@
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import sqlite3
+
+#sqlite3.connect("kass.db")
 
 engine = create_engine('sqlite:///kass.db', echo=True)
 
@@ -79,3 +82,5 @@ class CourseTimeSlot(Base):
 
 
 Base.metadata.create_all(engine)
+
+session.commit()
