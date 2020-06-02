@@ -9,15 +9,18 @@ for c in session.query(Course):  # INPUT FROM COURSE TABLE (COURSEID)
 
     freeList = []            # INPUT FROM CourseTimeSlot
 
-    courseTimeSlot[c.CourseID] = freeSlots
+    print(c)
 
-    for cts in session.query(CourseTimeSlot).filter_by
+    #courseTimeSlot[c.CourseID] = #HOW MANY SLOTS?
 
-    courseAvail[str(i)] = freeList
+    #for cts in session.query(CourseTimeSlot).filter_by
+
+    #courseAvail[str(i)] = freeList
 
 #print(courseDict)
 #print(courseAvail)
 
+"""
 
 freeRoom = [[11, 12, 21, 22, 31, 32, 41, 42, 51, 52],
             [11, 12, 21, 22, 31, 32, 41, 42, 51, 52],
@@ -57,4 +60,4 @@ for r in range(len(freeRoom)):
     print("Room", r, ":", freeRoom[r])
 
 print("Conflict courses:", conflictTable)
-
+"""

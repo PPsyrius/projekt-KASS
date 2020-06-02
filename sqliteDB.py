@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import sqlite3
 
-#sqlite3.connect("kass.db")
+sqlite3.connect("kass.db")
 
 engine = create_engine('sqlite:///kass.db', echo=True)
 
@@ -75,7 +75,7 @@ class CourseTimeSlot(Base):
     __tablename__ = "coursetimeslots"
 
     CourseID = Column(String, primary_key=True)
-    DateTime = Column(Integer)
+    DateTime = Column(Integer, primary_key=True)
 
     def __repr__(self):
         return "CourseTimeSlot(CourseID = {}, DateTime = {})".format(self.CourseID, self.DateTime)
@@ -83,16 +83,63 @@ class CourseTimeSlot(Base):
 
 Base.metadata.create_all(engine)
 
+courseToAdd = []
+
+courseTStoAdd = []
+
 c1 = Course(CourseID="1300", CourseName="Python", NoStudents=49, ProfName="Dr Visit", RoomType="Lecture")
+
+cts1 = CourseTimeSlot(CourseID="1300", DateTime=12)
+cts2 = CourseTimeSlot(CourseID="1300", DateTime=22)
+cts3 = CourseTimeSlot(CourseID="1300", DateTime=32)
+
+courseTStoAdd.append(cts1)
+courseTStoAdd.append(cts2)
+courseTStoAdd.append(cts3)
+
 c2 = Course(CourseID="1301", CourseName="Python Lab", NoStudents=49, ProfName="Dr Visit", RoomType="ComLab")
 
+cts4 = CourseTimeSlot(CourseID="1301", DateTime=42)
+cts5 = CourseTimeSlot(CourseID="1301", DateTime=52)
+cts6 = CourseTimeSlot(CourseID="1301", DateTime=11)
+
+courseTStoAdd.append(cts4)
+courseTStoAdd.append(cts5)
+courseTStoAdd.append(cts6)
+
 c3 = Course(CourseID="1302", CourseName="C", NoStudents=49, ProfName="Dr Ukrit", RoomType="Lecture")
+
+cts7 = CourseTimeSlot(CourseID="1302", DateTime=31)
+cts8 = CourseTimeSlot(CourseID="1302", DateTime=51)
+
+courseTStoAdd.append(cts7)
+courseTStoAdd.append(cts8)
+
 c4 = Course(CourseID="1303", CourseName="C Lab", NoStudents=49, ProfName="Dr Ukrit", RoomType="ComLab")
 
+cts9 = CourseTimeSlot(CourseID="1303", DateTime=42)
+cts10 = CourseTimeSlot(CourseID="1303", DateTime=41)
+
+courseTStoAdd.append(cts9)
+courseTStoAdd.append(cts10)
+
 c5 = Course(CourseID="1304", CourseName="Logic", NoStudents=30, ProfName="Dr Natthapong", RoomType="Lecture")
+
+cts11 = CourseTimeSlot(CourseID="1304", DateTime=12)
+cts12 = CourseTimeSlot(CourseID="1304", DateTime=32)
+
+courseTStoAdd.append(cts11)
+courseTStoAdd.append(cts12)
+
 c6 = Course(CourseID="1305", CourseName="Electricity", NoStudents=47, ProfName="Dr Michael", RoomType="Lecture")
 
-courseToAdd = []
+cts13 = CourseTimeSlot(CourseID="1305", DateTime=52)
+cts14 = CourseTimeSlot(CourseID="1305", DateTime=51)
+
+courseTStoAdd.append(cts13)
+courseTStoAdd.append(cts14)
+
+
 
 courseToAdd.append(c1)
 courseToAdd.append(c2)
@@ -102,5 +149,8 @@ courseToAdd.append(c5)
 courseToAdd.append(c6)
 
 session.add_all(courseToAdd)
+
+
+session.add_all(courseTStoAdd)
 
 session.commit()
