@@ -51,7 +51,7 @@ class RoomOccupancy(Base):
     __tablename__ = "roomOccupancies"
 
     RoomID = Column(String, primary_key=True)
-    DateTime = Column(Integer)
+    DateTime = Column(Integer, primary_key=True)
     CourseID = Column(String)
 
     def __repr__(self):
@@ -82,6 +82,26 @@ class CourseTimeSlot(Base):
 
 
 Base.metadata.create_all(engine)
+
+def generateRoomOccupancy():
+    dateTimeList = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
+    for r in session.query(Room):
+        for dt in dateTimeList:
+            newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
+            session.add(newRO)
+
+
+r1 = Room(RoomID="IC01", RoomType="Lecture", Capacity=50)
+r2 = Room(RoomID="IC02", RoomType="Lecture", Capacity=50)
+r3 = Room(RoomID="IC03", RoomType="ComLab", Capacity=50)
+
+session.add(r1)
+session.add(r2)
+session.add(r3)
+
+generateRoomOccupancy()
+
+
 
 courseToAdd = []
 

@@ -5,20 +5,22 @@ courseAvail = {}
 
 conflictTable = []
 
-for c in session.query(Course):  # INPUT FROM COURSE TABLE (COURSEID)
+for c in session.query(Course):
 
     freeList = []            # INPUT FROM CourseTimeSlot
+    slots = 0
+    #print(c.CourseID)
+    for cts in session.query(CourseTimeSlot).filter_by(CourseID=c.CourseID):
+        #print(cts)
+        freeList.append(cts.DateTime)
+        slots += 1
 
-    print(c)
+    courseTimeSlot[c.CourseID] = slots
 
-    #courseTimeSlot[c.CourseID] = #HOW MANY SLOTS?
+    courseAvail[c.CourseID] = freeList
 
-    #for cts in session.query(CourseTimeSlot).filter_by
-
-    #courseAvail[str(i)] = freeList
-
-#print(courseDict)
-#print(courseAvail)
+print(courseTimeSlot)
+print(courseAvail)
 
 """
 
