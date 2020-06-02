@@ -36,15 +36,18 @@ for r in session.query(Room):
 
 
 for k, v in freeRoomDict.items():
+    room = session.query(Room).filter_by(RoomID=k).first()
+    rType = room.RoomType
+
     newRO = v.copy()
     for j in v:
-
 
         lowestTimeSlotCourse = [None, 999]
         coursesInThisTime = []
 
         for x, y in courseAvail.items():
-            if j in y:
+            course = session.query(Course).filter_by(CourseID=x).first()
+            if j in y and rType == course.RoomType:
                 coursesInThisTime.append(x)
                 if courseTimeSlot[x] < lowestTimeSlotCourse[1]:
                     lowestTimeSlotCourse[0] = x
