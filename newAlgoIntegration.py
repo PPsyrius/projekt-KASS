@@ -1,3 +1,5 @@
+# This Python file uses the following encoding: utf-8
+
 from sqliteDB import *
 
 def readyToGenerate():      # Check if every course has at least one CourseTimeSlot

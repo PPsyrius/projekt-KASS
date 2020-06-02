@@ -110,30 +110,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="bt_addRoom">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Add Room</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bt_removeRoom">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Remove Room</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="bt_generateTable">
        <property name="font">
         <font>

@@ -1,3 +1,5 @@
+# This Python file uses the following encoding: utf-8
+
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base

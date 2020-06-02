@@ -3,14 +3,12 @@ import sys
 import os
 import datetime
 
-from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox, QTableWidgetItem
+from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox, QTableWidgetItem, QMessageBox
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
 
 from gvar import *
-
-global username_read
-username_read = "Dr Visit"
+from newAlgoIntegration import *
 
 class UI_form_login(QWidget):
     def __init__(self):
@@ -57,8 +55,8 @@ class UI_form_login(QWidget):
         elif login_p.password == password_inp and login_p.Email == email_inp:
             self.updateStatusMessage("Status: Login Succesful") # Success (Professor)
             username_read = login_p.ProfName
-            widget_menu_prof.show()
-            widget_login.hide()
+            #widget_menu_prof.show()
+            #widget_login.hide()
         else:
             self.updateStatusMessage("Status: Mismatched User") # Other Errors
             print(password_inp)
@@ -274,139 +272,11 @@ class UI_form_pick_timeslot(QWidget):
                 else:
                     ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=52).first()
                     session.delete(ctss)
-
             ##REMOVE_THIS##session.commit()
 
     def previousPage(self):
-        #self.updateTable()
-        pass
-
-
-class UI_form_main(QWidget):
-    def __init__(self):
-        super(UI_form_main, self).__init__()
-        self.load_ui()
-
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-
-        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
-        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
-        self.bt_addCourse = self.findChild(QPushButton, 'bt_addCourse')
-        self.bt_removeCourse = self.findChild(QPushButton, 'bt_removeCourse')
-        self.bt_generateTable = self.findChild(QPushButton, 'bt_generateTable')
-        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
-        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
-        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
-
-        self.lb_welcome.setText("Welcome, " + username_read )
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
-        self.bt_addCourse.clicked.connect(self.addCourse)
-        self.bt_removeCourse.clicked.connect(self.removeCourse)
-        self.bt_generateTable.clicked.connect(self.generateTable)
-        self.bt_exportPDF.clicked.connect(self.exportPDF)
-        self.bt_logOut.clicked.connect(self.logOut)
-
-        timer = QTimer(self)
-        timer.timeout.connect(self.updateCurrentTime)
-        timer.start(1000)
-
-        self.updateTable()
-
-    def load_ui(self):
-        loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form_main.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        loader.load(ui_file, self)
-        ui_file.close()
-
-    def updateCurrentTime(self):
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
-        self.updateDB()
-
-    def updateDB(self):
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-        self.lb_welcome.setText("Welcome, " + username_read )
-
-    def addCourse(self):
-        widget_course_add.show()
-        widget_menu.hide()
-
-    def removeCourse(self):
-        widget_course_remove.show()
-        widget_menu.hide()
-
-    def updateTable(self):
-        newScheduleTableList()
-            
-        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
-        self.table_wholeSchedule.setModel(table_model)
-        self.table_wholeSchedule.resizeColumnsToContents()
-
-    def generateTable(self):
-        self.updateTable()
-        pass
-
-    def exportPDF(self):
-        pass
-
-    def logOut(self):
-        global username_read
-        username_read = "Guest"
-        widget_login.show()
-        widget_menu.hide()
-
-
-class UI_form_main_guest(QWidget):
-    def __init__(self):
-        super(UI_form_main_guest, self).__init__()
-        self.load_ui()
-
-        self.setWindowTitle('KMITL Academic Scheduler System: Guess View')
-
-        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
-        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
-        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
-        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
-        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
-
-        self.lb_welcome.setText("Welcome, " + username_read)
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
-        self.bt_exportPDF.clicked.connect(self.exportPDF)
-        self.bt_logOut.clicked.connect(self.logOut)
-
-        timer = QTimer(self)
-        timer.timeout.connect(self.updateCurrentTime)
-        timer.start(1000)
-
-        self.updateTable()
-
-    def load_ui(self):
-        loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form_main_guest.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        loader.load(ui_file, self)
-        ui_file.close()
-
-    def updateCurrentTime(self):
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
-
-    def updateTable(self):
-        newScheduleTableList()
-            
-        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
-        self.table_wholeSchedule.setModel(table_model)
-        self.table_wholeSchedule.resizeColumnsToContents()
-
-    def exportPDF(self):
-        pass
-
-    def logOut(self):
-        global username_read
-        username_read = "Guest"
-        widget_login.show()
-        widget_menu_guest.hide()
+        widget_menu_prof.show()
+        widget_pick_timeslot.hide() 
 
 
 class UI_course_remove(QWidget):
@@ -519,7 +389,6 @@ class UI_course_add(QWidget):
     def updateStatusMessage(self, text):
         self.lb_statusMessage.setText(text)
 
-
     def updateCourseList(self):
         global courseList
         courseList = []
@@ -573,6 +442,160 @@ class UI_course_add(QWidget):
         widget_course_add.updateStatusMessage("Click Remove Once To Pull Data")
         widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
+class UI_form_main(QWidget):
+    def __init__(self):
+        super(UI_form_main, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+
+        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
+        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
+        self.bt_addCourse = self.findChild(QPushButton, 'bt_addCourse')
+        self.bt_removeCourse = self.findChild(QPushButton, 'bt_removeCourse')
+        self.bt_addRoom = self.findChild(QPushButton, 'bt_addRoom')
+        self.bt_removeRoom = self.findChild(QPushButton, 'bt_removeRoom')
+        self.bt_generateTable = self.findChild(QPushButton, 'bt_generateTable')
+        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
+        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
+        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+
+        self.lb_welcome.setText("Welcome, " + username_read )
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.bt_addCourse.clicked.connect(self.addCourse)
+        self.bt_removeCourse.clicked.connect(self.removeCourse)
+        self.bt_addRoom.clicked.connect(self.addRoom)
+        self.bt_removeRoom.clicked.connect(self.removeRoom)
+        self.bt_generateTable.clicked.connect(self.generateTable)
+        self.bt_exportPDF.clicked.connect(self.exportPDF)
+        self.bt_logOut.clicked.connect(self.logOut)
+
+        timer = QTimer(self)
+        timer.timeout.connect(self.updateCurrentTime)
+        timer.start(1000)
+
+        self.updateTable()
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_main.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateCurrentTime(self):
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.updateDB()
+
+    def updateDB(self):
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+        self.lb_welcome.setText("Welcome, " + username_read )
+
+    def addCourse(self):
+        widget_course_add.show()
+        widget_menu.hide()
+
+    def removeCourse(self):
+        widget_course_remove.show()
+        widget_menu.hide()
+
+    def addRoom(self):
+        widget_room_add.show()
+        widget_menu.hide()
+
+    def removeRoom(self):
+        widget_room_remove.show()
+        widget_menu.hide()
+
+    def updateTable(self):
+        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
+        self.table_wholeSchedule.setModel(table_model)
+        self.table_wholeSchedule.resizeColumnsToContents()
+
+    def generateTable(self):
+        if readyToGenerate():
+            global scheduleTableList
+            scheduleTableList = NiceTimeTable()
+            self.updateTable()
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Timetable Creation Succesful")
+            msg.setWindowTitle("Timetable Creation Succesful")
+            msg.exec_()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Timetable Conflict Founded!")
+            msg.setWindowTitle("Conflict Founded")
+            msg.setDetailedText("The Following Lecturers must change their timetable:")
+            perpetratorList=""
+            for entry in NiceConflict():
+                perpetratorList+=entry+"\n"
+            msg.setInformativeText(perpetratorList)
+            msg.exec_()
+
+    def exportPDF(self):
+        ##PLACEHOLDER##
+        pass
+
+    def logOut(self):
+        global username_read
+        username_read = "Guest"
+        widget_login.show()
+        widget_menu.hide()
+
+class UI_form_main_guest(QWidget):
+    def __init__(self):
+        super(UI_form_main_guest, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Guess View')
+
+        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
+        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
+        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
+        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
+        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+
+        self.lb_welcome.setText("Welcome, " + username_read)
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.bt_exportPDF.clicked.connect(self.exportPDF)
+        self.bt_logOut.clicked.connect(self.logOut)
+
+        timer = QTimer(self)
+        timer.timeout.connect(self.updateCurrentTime)
+        timer.start(1000)
+
+        self.updateTable()
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_main_guest.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateCurrentTime(self):
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+
+    def updateTable(self):
+        ##ALGO##
+            
+        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
+        self.table_wholeSchedule.setModel(table_model)
+        self.table_wholeSchedule.resizeColumnsToContents()
+
+    def exportPDF(self):
+        ##PLACEHOLDER##
+        pass
+
+    def logOut(self):
+        global username_read
+        username_read = "Guest"
+        widget_login.show()
+        widget_menu_guest.hide()
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -605,11 +628,14 @@ if __name__ == "__main__":
     widget_pick_timeslot = UI_form_pick_timeslot()
     widget_course_remove = UI_course_remove()
     widget_course_add = UI_course_add()
-    #widget_menu = UI_form_main()
-    #widget_menu_guest = UI_form_main_guest()
+    #widget_room_remove = UI_room_remove()
+    #widget_room_add = UI_room_add()
+    widget_menu = UI_form_main()
+    #widget_prof_guest = UI_form_main_prof()
+    widget_menu_guest = UI_form_main_guest()
+    
+    #widget_login.show()
 
-    widget_login.show()
-
-    #widget_menu.show()
+    widget_menu.show()
     
     sys.exit(app.exec_())
