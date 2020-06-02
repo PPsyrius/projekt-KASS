@@ -83,4 +83,24 @@ class CourseTimeSlot(Base):
 
 Base.metadata.create_all(engine)
 
+c1 = Course(CourseID="1300", CourseName="Python", NoStudents=49, ProfName="Dr Visit", RoomType="Lecture")
+c2 = Course(CourseID="1301", CourseName="Python Lab", NoStudents=49, ProfName="Dr Visit", RoomType="ComLab")
+
+c3 = Course(CourseID="1302", CourseName="C", NoStudents=49, ProfName="Dr Ukrit", RoomType="Lecture")
+c4 = Course(CourseID="1303", CourseName="C Lab", NoStudents=49, ProfName="Dr Ukrit", RoomType="ComLab")
+
+c5 = Course(CourseID="1304", CourseName="Logic", NoStudents=30, ProfName="Dr Natthapong", RoomType="Lecture")
+c6 = Course(CourseID="1305", CourseName="Electricity", NoStudents=47, ProfName="Dr Michael", RoomType="Lecture")
+
+courseToAdd = []
+
+courseToAdd.append(c1)
+courseToAdd.append(c2)
+courseToAdd.append(c3)
+courseToAdd.append(c4)
+courseToAdd.append(c5)
+courseToAdd.append(c6)
+
+session.add_all(courseToAdd)
+
 session.commit()
