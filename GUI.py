@@ -47,22 +47,24 @@ class UI_form_login(QWidget):
 
         if not (login_p or login_a):
             self.updateStatusMessage("Status: Invalid User") # Email not exist
-        elif login_a.password == password_inp and login_a.Email == email_inp:
-            self.updateStatusMessage("Status: Login Succesful") # Success (Admin)
-            username_read = login_a.ProfName
-            widget_menu.show()
-            widget_login.hide()
-        elif login_p.password == password_inp and login_p.Email == email_inp:
-            self.updateStatusMessage("Status: Login Succesful") # Success (Professor)
-            username_read = login_p.ProfName
-            #widget_menu_prof.show()
-            #widget_login.hide()
+        elif login_a:
+            if login_a.Password == password_inp and login_a.Email == email_inp:
+                self.updateStatusMessage("Status: Login Succesful") # Success (Admin)
+                username_read = login_a.ProfName
+                widget_menu.show()
+                widget_login.hide()
+            else:
+                self.updateStatusMessage("Status: Mismatched Email and Password") # Other Errors
+        elif login_p:
+            if login_p.Password == password_inp and login_p.Email == email_inp:
+                self.updateStatusMessage("Status: Login Succesful") # Success (Professor)
+                username_read = login_p.ProfName
+                widget_menu_prof.show()
+                widget_login.hide()
+            else:
+                self.updateStatusMessage("Status: Mismatched Email and Password") # Other Errors
         else:
-            self.updateStatusMessage("Status: Mismatched User") # Other Errors
-            print(password_inp)
-            print(login_a.password)
-            print(login_q.password)
-
+            self.updateStatusMessage("Status: Unknown Error!") # Other Errors
     def guestLogIn(self):
         widget_menu_guest.show()
         widget_login.hide()    
@@ -590,6 +592,75 @@ class UI_form_main(QWidget):
         widget_login.show()
         widget_menu.hide()
 
+class UI_form_main_prof(QWidget):
+    def __init__(self):
+        super(UI_form_main_prof, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+
+        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
+        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
+        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
+        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
+        self.bt_adjustTimetable = self.findChild(QPushButton, 'bt_adjustTimetable')
+        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+
+        self.lb_welcome.setText("Welcome, " + username_read)
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.bt_exportPDF.clicked.connect(self.exportPDF)
+        self.bt_logOut.clicked.connect(self.logOut)
+        self.bt_adjustTimetable.clicked.connect(self.adjustTimetable)
+
+        timer = QTimer(self)
+        timer.timeout.connect(self.updateCurrentTime)
+        timer.start(1000)
+
+        self.updateTable()
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_main_prof.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateCurrentTime(self):
+        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.updateDB()
+
+    def updateDB(self):
+        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+        self.lb_welcome.setText("Welcome, " + username_read )
+
+    def updateTable(self):    
+        table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
+        self.table_wholeSchedule.setModel(table_model)
+        self.table_wholeSchedule.resizeColumnsToContents()
+
+    def adjustTimetable(self):
+        if username_read in profList:
+            widget_pick_timeslot.updateSelectedCourseList()
+            widget_pick_timeslot.show()
+            widget_menu_prof.hide()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Username not in Lecturer Database!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+
+    def exportPDF(self):
+        ##PLACEHOLDER##
+        pass
+
+    def logOut(self):
+        global username_read
+        username_read = "Guest"
+        widget_login.show()
+        widget_menu_prof.hide()
+
 class UI_form_main_guest(QWidget):
     def __init__(self):
         super(UI_form_main_guest, self).__init__()
@@ -625,9 +696,7 @@ class UI_form_main_guest(QWidget):
     def updateCurrentTime(self):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
-    def updateTable(self):
-        ##ALGO##
-            
+    def updateTable(self):    
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
         self.table_wholeSchedule.resizeColumnsToContents()
@@ -676,11 +745,9 @@ if __name__ == "__main__":
     #widget_room_remove = UI_room_remove()
     #widget_room_add = UI_room_add()
     widget_menu = UI_form_main()
-    #widget_prof_guest = UI_form_main_prof()
+    widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
     
-    #widget_login.show()
-
-    widget_menu.show()
+    widget_login.show()
     
     sys.exit(app.exec_())
