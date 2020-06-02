@@ -55,7 +55,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Course ID</string>
+          <string>Course ID:</string>
          </property>
         </widget>
        </item>
@@ -80,7 +80,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Course Name</string>
+          <string>Course Name:</string>
          </property>
         </widget>
        </item>
@@ -105,7 +105,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Capacity</string>
+          <string>Capacity:</string>
          </property>
         </widget>
        </item>
@@ -121,21 +121,21 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="DateBox">
+      <layout class="QHBoxLayout" name="ProfBox">
        <item>
-        <widget class="QLabel" name="lb_date">
+        <widget class="QLabel" name="lb_prof">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Date</string>
+          <string>Lecturer:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cb_date">
+        <widget class="QComboBox" name="cb_prof">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -146,21 +146,21 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="PeriodBox">
+      <layout class="QHBoxLayout" name="RoomBox">
        <item>
-        <widget class="QLabel" name="lb_time">
+        <widget class="QLabel" name="label">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Time</string>
+          <string>Room Type:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cb_time">
+        <widget class="QComboBox" name="cb_roomtype">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -178,7 +178,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Add Course ID</string>
+        <string>Add Course</string>
        </property>
       </widget>
      </item>
