@@ -90,7 +90,7 @@ def generateRoomOccupancy():
             newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
             session.add(newRO)
 
-
+"""
 r1 = Room(RoomID="IC01", RoomType="Lecture", Capacity=50)
 r2 = Room(RoomID="IC02", RoomType="Lecture", Capacity=50)
 r3 = Room(RoomID="IC03", RoomType="ComLab", Capacity=50)
@@ -174,3 +174,4 @@ session.add_all(courseToAdd)
 session.add_all(courseTStoAdd)
 
 session.commit()
+"""

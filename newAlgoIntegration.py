@@ -22,44 +22,58 @@ for c in session.query(Course):
 print(courseTimeSlot)
 print(courseAvail)
 
-"""
 
-freeRoom = [[11, 12, 21, 22, 31, 32, 41, 42, 51, 52],
-            [11, 12, 21, 22, 31, 32, 41, 42, 51, 52],
-            [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]]   #INPUT FROM RoomOccupancy
 
-for i in range(len(freeRoom)):
+freeRoomDict = {}   #INPUT FROM RoomOccupancy
 
-    for j in range(len(freeRoom[0])):
-        lowestTimeSlotCourse = ["Null", 999]
+for r in session.query(Room):
+    listRO = []
+    for ro in session.query(RoomOccupancy).filter_by(RoomID=r.RoomID):
+        listRO.append(ro.DateTime)
+    freeRoomDict[r.RoomID] = listRO
+
+#print(freeRoomDict)
+
+
+for k, v in freeRoomDict.items():
+    newRO = v.copy()
+    for j in v:
+
+
+        lowestTimeSlotCourse = [None, 999]
         coursesInThisTime = []
 
-        for k, v in courseAvail.items():
-            if freeRoom[i][j] in v:
-                coursesInThisTime.append(k)
-                if courseDict[k] < lowestTimeSlotCourse[1]:
-                    lowestTimeSlotCourse[0] = k
-                    lowestTimeSlotCourse[1] = courseDict[k]
-                #print("{} has {} timeslots".format(k, courseDict[k]))
+        for x, y in courseAvail.items():
+            if j in y:
+                coursesInThisTime.append(x)
+                if courseTimeSlot[x] < lowestTimeSlotCourse[1]:
+                    lowestTimeSlotCourse[0] = x
+                    lowestTimeSlotCourse[1] = courseTimeSlot[x]
+
 
         #print(lowestTimeSlotCourse)
-        if lowestTimeSlotCourse[0] != "Null":
+        if lowestTimeSlotCourse[0] != None:
             #print("Deleting ", lowestTimeSlotCourse[0])
             coursesInThisTime.remove(lowestTimeSlotCourse[0])
             #print("Adding", lowestTimeSlotCourse[0], "to", i, j, freeRoom[i][j])
-            freeRoom[i][j] = lowestTimeSlotCourse[0]
+            newRO[newRO.index(j)] = lowestTimeSlotCourse[0]
 
             courseAvail.pop(lowestTimeSlotCourse[0])
 
         #print(i, freeRoom[i][j], coursesInThisTime)
         for x in coursesInThisTime:
-            courseDict[x] -= 1
+            courseTimeSlot[x] -= 1
+
+    #print(k, newRO)
+
+    freeRoomDict[k] = newRO
 
 for k in courseAvail.keys():
     conflictTable.append(k)
 
-for r in range(len(freeRoom)):
-    print("Room", r, ":", freeRoom[r])
+for k, v in freeRoomDict.items():
+    print(k , v)
 
 print("Conflict courses:", conflictTable)
-"""
+
+
