@@ -333,14 +333,30 @@ class UI_course_remove(QWidget):
 
         cd = session.query(Course).filter_by(CourseID=courseID_inp).first()
         
-        if not courseTableList:
-            self.updateStatusMessage("Error: No Course in DB by this User")
-        elif courseID_inp=="":
-            self.updateStatusMessage("Status: Table Updated") # Pull Data
-        elif not cd:
-            self.updateStatusMessage("Error: Invalid Course ID") # CourseID not exist
+        if not courseTableList: # No DB Entry
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No Course in DB by this user!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif courseID_inp=="": # Update Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif not cd: # CourseID not exist!
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Invalid Course ID!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
         else:
-            self.updateStatusMessage("Status: Course Removed") # Success
+            msg = QMessageBox() # Success
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Course Removed!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
             session.delete(cd)
             
         self.updateTable()
@@ -350,7 +366,7 @@ class UI_course_remove(QWidget):
     def previousPage(self):
         widget_menu.show()
         widget_course_remove.hide()
-        widget_course_add.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_add.updateStatusMessage("Click Add Once To Pull Data")
         widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
 
@@ -416,20 +432,48 @@ class UI_course_add(QWidget):
         prof_inp = self.cb_prof.currentText()
         roomtype_inp = self.cb_roomtype.currentText()
         
-        if not courseTableList:
-            self.updateStatusMessage("Error: No Course in DB by this User")
-        elif courseID_inp=="":
-            self.updateStatusMessage("Status: Table Updated") # Pull Data
-        elif courseID_inp in courseList:
-            self.updateStatusMessage("Error: Course ID Exists") # CourseID exists
-        elif courseName_inp=="" or capacity_inp=="":
-            self.updateStatusMessage("Error: Blank Data Slots") # Blank slots
-        elif not capacity_inp.isdecimal():
-            self.updateStatusMessage("Error: Capacity must be Integer") # Capacity Not Integer
-        elif int(capacity_inp)<=0:
-            self.updateStatusMessage("Error: Capacity must be Positive") # <=0
-        else:
-            self.updateStatusMessage("Status: Course Added") # Success
+        if not courseTableList: # Empty Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No Course in DB by this user!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif courseID_inp=="": # Pull Data
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif courseID_inp in courseList: # CourseID Exists
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Course ID Already Exists!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif courseName_inp=="" or capacity_inp=="": # Blank slots
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Blank Data Slot(s)!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif not capacity_inp.isdecimal(): # Capacity Not Integer
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Capacity must be Integer!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif int(capacity_inp)<=0: # <=0
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Capacity must be Positive!")
+            msg.setWindowTitle("Error!")
+            msg.exec_()
+        else: # Success
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Course Added!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
             ca = Course(CourseID=courseID_inp, CourseName=courseName_inp, NoStudents=int(capacity_inp), ProfName=prof_inp, RoomType=roomtype_inp)
             session.add(ca)                     
         self.updateTable()
@@ -439,7 +483,7 @@ class UI_course_add(QWidget):
     def previousPage(self):
         widget_menu.show()
         widget_course_add.hide()
-        widget_course_add.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_add.updateStatusMessage("Click Add Once To Pull Data")
         widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
 class UI_form_main(QWidget):
@@ -518,16 +562,17 @@ class UI_form_main(QWidget):
             global scheduleTableList
             scheduleTableList = NiceTimeTable()
             self.updateTable()
+
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
-            msg.setText("Timetable Creation Succesful")
-            msg.setWindowTitle("Timetable Creation Succesful")
+            msg.setText("Status")
+            msg.setWindowTitle("Timetable Creation Succesful!")
             msg.exec_()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Timetable Conflict Founded!")
-            msg.setWindowTitle("Conflict Founded")
+            msg.setWindowTitle("Error")
             msg.setDetailedText("The Following Lecturers must change their timetable:")
             perpetratorList=""
             for entry in NiceConflict():
