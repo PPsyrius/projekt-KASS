@@ -134,6 +134,8 @@ class UI_form_pick_timeslot(QWidget):
         selectedCourseList = ["--Select Here--"]
         for c in session.query(Course).filter_by(ProfName=username_read).order_by(Course.CourseID):
             selectedCourseList.append(c.CourseID)
+        self.cb_currentSubject.clear()
+        self.cb_currentSubject.addItems(selectedCourseList)
         
     def updateDB(self):
         self.lbb_ProfName.setText('-')
