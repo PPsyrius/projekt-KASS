@@ -47,7 +47,7 @@ class UI_form_login(QWidget):
 
         global scheduleTableList
         saved_generated_data = NiceSavedTable()
-        if not saved_generated_data:
+        if saved_generated_data:
             scheduleTableList = saved_generated_data
 
         login_p = session.query(Professor).filter_by(Email=email_inp).first()
@@ -86,7 +86,7 @@ class UI_form_login(QWidget):
     def guestLogIn(self):
         widget_menu_guest.updateTable()
         widget_menu_guest.show()
-        widget_login.hide()    
+        widget_login.hide()
 
 
 class UI_form_pick_timeslot(QWidget):
@@ -1022,7 +1022,11 @@ class UI_form_main_guest(QWidget):
     def updateCurrentTime(self):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
-    def updateTable(self):    
+    def updateTable(self):
+        saved_generated_data = NiceSavedTable()
+        if saved_generated_data:
+            scheduleTableList = saved_generated_data
+
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
         self.table_wholeSchedule.resizeColumnsToContents()
