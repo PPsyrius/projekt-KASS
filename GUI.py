@@ -45,6 +45,11 @@ class UI_form_login(QWidget):
         password_inp = self.le_password.text()
         global username_read
 
+        global scheduleTableList
+        saved_generated_data = NiceSavedTable()
+        if not saved_generated_data:
+            scheduleTableList = saved_generated_data
+
         login_p = session.query(Professor).filter_by(Email=email_inp).first()
         login_a = session.query(Admin).filter_by(Email=email_inp).first()
 
@@ -54,6 +59,7 @@ class UI_form_login(QWidget):
             if login_a.Password == password_inp and login_a.Email == email_inp:
                 self.updateStatusMessage("Status: Login Succesful") # Success (Admin)
                 username_read = login_a.AdminName
+                widget_menu.updateTable()
                 widget_menu.show()
                 widget_login.hide()
             else:
@@ -70,6 +76,7 @@ class UI_form_login(QWidget):
                     for nc in niceConflict[username_read]:
                         conf+= nc + "\n"
                     CreateDetailedErrorMSGBox("You have Timetable Conflict!",conf,"The following classes needed to be re-schedule:")
+                widget_menu_prof.updateTable()
                 widget_menu_prof.show()
                 widget_login.hide()
             else:
@@ -77,6 +84,7 @@ class UI_form_login(QWidget):
         else:
             self.updateStatusMessage("Status: Unknown Error!") # Other Errors
     def guestLogIn(self):
+        widget_menu_guest.updateTable()
         widget_menu_guest.show()
         widget_login.hide()    
 
