@@ -999,25 +999,32 @@ class UI_form_main(QWidget):
 
     def generateTable(self):
         if readyToGenerate():
-            global scheduleTableList
-            scheduleTableList = NiceTimeTable()
-            self.updateTable()
+            if not NiceConflict():
+                global scheduleTableList
+                scheduleTableList = NiceTimeTable()
+                self.updateTable()
 
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Timetable Creation Succesful!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("Timetable Creation Succesful!")
+                msg.setWindowTitle("Status")
+                msg.exec_()
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("Timetable Conflict Founded!")
+                msg.setWindowTitle("Error")
+                msg.setDetailedText("The Following Lecturers must change their timetable:")
+                perpetratorList=""
+                for entry in NiceConflict():
+                    perpetratorList+=entry+"\n"
+                msg.setInformativeText(perpetratorList)
+                msg.exec_()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("Timetable Conflict Founded!")
+            msg.setText("One of the classes lack assigned-timeslot!")
             msg.setWindowTitle("Error")
-            msg.setDetailedText("The Following Lecturers must change their timetable:")
-            perpetratorList=""
-            for entry in NiceConflict():
-                perpetratorList+=entry+"\n"
-            msg.setInformativeText(perpetratorList)
             msg.exec_()
 
     def exportPDF(self):
