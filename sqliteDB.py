@@ -105,7 +105,7 @@ def NiceSavedTable():
             newTimeTable = [rd.RoomID, rd.Date, rd.Time, rd.DateTimeCourse, c.CourseName, c.ProfName]
             newNiceTable.append(newTimeTable)
 
-    print(newNiceTable)
+    #print(newNiceTable)
     return newNiceTable
 
 def generateRoomOccupancy():

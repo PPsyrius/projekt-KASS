@@ -95,6 +95,8 @@ def generate():
 
 def NiceTimeTable():             # Use this to output the Nicely formatted time table
     generate()
+    session.query(GeneratedTable).delete()
+    session.commit()
     GeneratedTimeTable = []
     schedule = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
     date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
