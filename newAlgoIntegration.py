@@ -112,7 +112,15 @@ def NiceTimeTable():             # Use this to output the Nicely formatted time 
                 newTimeTable = [k, date[d], time[t], j, c.CourseName, c.ProfName]
                 GeneratedTimeTable.append(newTimeTable)
 
+                savingRow = GeneratedTable(RoomID=k, DateTimeCourse= j, Date= date[d], Time= time[t])
+
+            else:
+                strDT = str(j)
+                savingRow = GeneratedTable(RoomID=k, DateTimeCourse=strDT, Date=strDT[0], Time=strDT[1])
+            session.add(savingRow)
     #print(GeneratedTimeTable)
+    session.commit()
+    NiceSavedTable()
     return GeneratedTimeTable
 
 def RemoveCourseFromFreeRoomDict(CourseID):

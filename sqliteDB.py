@@ -82,8 +82,31 @@ class CourseTimeSlot(Base):
     def __repr__(self):
         return "CourseTimeSlot(CourseID = {}, DateTime = {})".format(self.CourseID, self.DateTime)
 
+class GeneratedTable(Base):
+    __tablename__ = "generatedtable"
+
+    RoomID = Column(String, primary_key=True)
+    DateTimeCourse = Column(String, primary_key=True)
+    Date = Column(String)
+    Time = Column(String)
+
+    def __repr__(self):
+        return "CourseTimeSlot(RoomID = {}, DateTimeCourse = {})".format(self.RoomID, self.DateTimeCourse)
 
 Base.metadata.create_all(engine)
+
+def NiceSavedTable():
+
+    newNiceTable = []
+    for rd in session.query(GeneratedTable):
+
+        if int(rd.DateTimeCourse) > 52:
+            c = session.query(Course).filter_by(CourseID=rd.DateTimeCourse).first()
+            newTimeTable = [rd.RoomID, rd.Date, rd.Time, rd.DateTimeCourse, c.CourseName, c.ProfName]
+            newNiceTable.append(newTimeTable)
+
+    print(newNiceTable)
+    return newNiceTable
 
 def generateRoomOccupancy():
     dateTimeList = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
