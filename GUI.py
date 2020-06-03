@@ -3,13 +3,14 @@ import sys
 import os
 import datetime
 
-from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox, QTableWidgetItem, QMessageBox
+from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtGui import QIcon
 
 from gvar import *
 from newAlgoIntegration import *
+from messageboxes import *
 
 class UI_form_login(QWidget):
     def __init__(self):
@@ -337,29 +338,13 @@ class UI_course_remove(QWidget):
         cd = session.query(Course).filter_by(CourseID=courseID_inp).first()
         
         if not courseTableList: # No DB Entry
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No Course in DB by this user!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateWarningMSGBox("No Course in DB by this user!")
         elif courseID_inp=="": # Update Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif not cd: # CourseID not exist!
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Invalid Course ID!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
-        else:
-            msg = QMessageBox() # Success
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Course Removed!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateWarningMSGBox("Invalid Course ID!")
+        else: # Status
+            CreateStatusMSGBox("Course Removed!")
             session.delete(cd)
             
         self.updateTable()
@@ -437,47 +422,19 @@ class UI_course_add(QWidget):
         roomtype_inp = self.cb_roomtype.currentText()
         
         if not courseTableList: # Empty Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No Course in DB by this user!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateWarningMSGBox("No Course in DB by this user!")
         elif courseID_inp=="": # Pull Data
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif courseID_inp in courseList: # CourseID Exists
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Course ID Already Exists!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Course ID Already Exists!")
         elif courseName_inp=="" or capacity_inp=="": # Blank slots
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Blank Data Slot(s)!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Blank Data Slot(s)!")
         elif not capacity_inp.isdecimal(): # Capacity Not Integer
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Capacity must be Integer!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Capacity must be Integer!")
         elif int(capacity_inp)<=0: # <=0
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Capacity must be Positive!")
-            msg.setWindowTitle("Error!")
-            msg.exec_()
+            CreateErrorMSGBox("Capacity must be Positive!")
         else: # Success
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Course Added!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Course Added!")
             ca = Course(CourseID=courseID_inp, CourseName=courseName_inp, NoStudents=int(capacity_inp), ProfName=prof_inp, RoomType=roomtype_inp)
             session.add(ca)                     
         self.updateTable()
@@ -547,29 +504,13 @@ class UI_room_remove(QWidget):
         rd = session.query(Room).filter_by(RoomID=roomID_inp).first()
         
         if not roomTableList: # No DB Entry
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No room in this DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No room in this DB!")
         elif roomID_inp=="": # Update Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif not rd: # RoomID not exist!
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Invalid Room ID!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Invalid Room ID!")
         else:
-            msg = QMessageBox() # Success
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Room Removed!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Room Removed!")
             session.delete(rd)
             
         self.updateTable()
@@ -642,47 +583,19 @@ class UI_room_add(QWidget):
         roomtype_inp = self.cb_roomtype.currentText()
         
         if not roomTableList: # Empty Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No room in DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No room in DB!")
         elif roomID_inp=="": # Pull Data
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif roomID_inp in roomList: # CourseID Exists
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Room ID Already Exists!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Room ID Already Exists!")
         elif capacity_inp=="": # Blank slots
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Blank Data Slot(s)!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Blank Data Slot(s)!")
         elif not capacity_inp.isdecimal(): # Capacity Not Integer
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Capacity must be Integer!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Capacity must be Integer!")
         elif int(capacity_inp)<=0: # <=0
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Capacity must be Positive!")
-            msg.setWindowTitle("Error!")
-            msg.exec_()
+            CreateErrorMSGBox("Capacity must be Positive!")
         else: # Success
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Room Added!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Room Added!")
             ra = Room(RoomID=roomID_inp, Capacity=int(capacity_inp), RoomType=roomtype_inp)
             session.add(ra)                     
         self.updateTable()
@@ -756,29 +669,13 @@ class UI_prof_remove(QWidget):
         pd = session.query(Professor).filter_by(ProfID=profID_inp).first()
         
         if not profTableList: # No DB Entry
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No Lecturer in this DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No Lecturer in this DB!")
         elif profID_inp=="": # Update Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif not pd: # RoomID not exist!
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Invalid Lecturer ID!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Invalid Lecturer ID!")
         else:
-            msg = QMessageBox() # Success
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Lecturer Removed!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Lecturer Removed!")
             session.delete(pd)
             
         self.updateTable()
@@ -857,35 +754,15 @@ class UI_prof_add(QWidget):
         password_inp = self.le_password.text()
         
         if not profTableList: # Empty Table
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("No Lecturer in DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No Lecturer in DB!")
         elif profID_inp=="": # Pull Data
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Table Updated!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Table Updated!")
         elif profID_inp in profIDList or profName_inp in profList: # ProfID Exists
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Lecturer ID Already Exists!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Lecturer ID Already Exists!")
         elif profName_inp=="" or password_inp=="" or email_inp=="": # Blank slots
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Blank Data Slot(s)!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Blank Data Slot(s)!")
         else: # Success
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Lecturer Added!")
-            msg.setWindowTitle("Status")
-            msg.exec_()
+            CreateStatusMSGBox("Lecturer Added!")
             pa = Professor(ProfID=profID_inp, ProfName=profName_inp, Email=email_inp, Password=password_inp,)
             session.add(pa)
         self.updateTable()
@@ -964,11 +841,7 @@ class UI_form_main(QWidget):
             widget_course_remove.show()
             widget_menu.hide()
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("No Course in DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No Course in DB!")
 
     def addProf(self):
         widget_prof_add.show()
@@ -980,11 +853,7 @@ class UI_form_main(QWidget):
             widget_prof_remove.show()
             widget_menu.hide()
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("No Lecturer in DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No Lecturer in DB!")
 
     def addRoom(self):
         widget_room_add.show()
@@ -996,11 +865,7 @@ class UI_form_main(QWidget):
             widget_room_remove.show()
             widget_menu.hide()
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("No Room in DB!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("No Room in DB!")
 
     def updateTable(self):
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
@@ -1013,29 +878,14 @@ class UI_form_main(QWidget):
                 global scheduleTableList
                 scheduleTableList = NiceTimeTable()
                 self.updateTable()
-
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setText("Timetable Creation Succesful!")
-                msg.setWindowTitle("Status")
-                msg.exec_()
+                CreateStatusMSGBox("Timetable Creation Succesful!")
             else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setText("Timetable Conflict Founded!")
-                msg.setWindowTitle("Error")
-                msg.setDetailedText("The Following Lecturers must change their timetable:")
                 perpetratorList=""
                 for entry in NiceConflict():
                     perpetratorList+=entry+"\n"
-                msg.setInformativeText(perpetratorList)
-                msg.exec_()
+                CreateDetailedErrorMSGBox("Timetable Conflict Founded!","The Following Lecturers must change their timetable:",perpetratorList)
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("One of the classes lack assigned-timeslot!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("One of the classes lack assigned-timeslot!")
 
     def exportPDF(self):
         ##PLACEHOLDER##
@@ -1105,17 +955,9 @@ class UI_form_main_prof(QWidget):
                 widget_pick_timeslot.show()
                 widget_menu_prof.hide()
             else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setText("No course in DB for you!")
-                msg.setWindowTitle("Error")
-                msg.exec_()
+                CreateErrorMSGBox("No course in DB for you!")
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Username not in Lecturer Database!")
-            msg.setWindowTitle("Error")
-            msg.exec_()
+            CreateErrorMSGBox("Username not in Lecturer Database!")
 
     def exportPDF(self):
         ##PLACEHOLDER##
