@@ -1188,7 +1188,6 @@ if __name__ == "__main__":
     widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
     
-    #widget_login.show()
-    widget_prof_remove.show()
+    widget_login.show()
     
     sys.exit(app.exec_())
