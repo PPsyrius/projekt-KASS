@@ -950,7 +950,7 @@ class UI_form_main(QWidget):
 
     def removeCourse(self):
         global courseList
-        if not courseList:
+        if courseList:
             widget_course_remove.show()
             widget_menu.hide()
         else:
@@ -966,7 +966,7 @@ class UI_form_main(QWidget):
 
     def removeProf(self):
         global profIDList
-        if not profIDList:
+        if profIDList:
             widget_prof_remove.show()
             widget_menu.hide()
         else:
@@ -982,7 +982,7 @@ class UI_form_main(QWidget):
 
     def removeRoom(self):
         global roomList
-        if not roomList:
+        if roomList:
             widget_room_remove.show()
             widget_menu.hide()
         else:
@@ -1005,8 +1005,8 @@ class UI_form_main(QWidget):
 
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
-            msg.setText("Status")
-            msg.setWindowTitle("Timetable Creation Succesful!")
+            msg.setText("Timetable Creation Succesful!")
+            msg.setWindowTitle("Status")
             msg.exec_()
         else:
             msg = QMessageBox()
@@ -1188,6 +1188,7 @@ if __name__ == "__main__":
     widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
     
-    widget_login.show()
+    #widget_login.show()
+    widget_prof_remove.show()
     
     sys.exit(app.exec_())

@@ -33,7 +33,7 @@ for p in session.query(Professor).order_by(Professor.ProfID):
     profIDList.append(p.ProfID)
 courseList = []
 for c in session.query(Course).order_by(Course.CourseID):
-    profList.append(c.CourseID)
+    courseList.append(c.CourseID)
 roomList = []
 for r in session.query(Room).order_by(Room.RoomID):
     roomList.append(r.RoomID)
