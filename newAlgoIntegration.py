@@ -23,85 +23,87 @@ courseTimeSlot = {}
 courseAvail = {}
 
 conflictTable = []
+freeRoomDict = {}  # INPUT FROM RoomOccupancy
 
-for c in session.query(Course):
+def generate():
 
-    freeList = []            # INPUT FROM CourseTimeSlot
-    slots = 0
-    #print(c.CourseID)
-    for cts in session.query(CourseTimeSlot).filter_by(CourseID=c.CourseID):
-        #print(cts)
-        freeList.append(cts.DateTime)
-        slots += 1
+    for c in session.query(Course):
 
-    courseTimeSlot[c.CourseID] = slots
+        freeList = []            # INPUT FROM CourseTimeSlot
+        slots = 0
+        print(c.CourseID)
+        for cts in session.query(CourseTimeSlot).filter_by(CourseID=c.CourseID):
+            #print(cts)
+            freeList.append(cts.DateTime)
+            slots += 1
 
-    courseAvail[c.CourseID] = freeList
+        courseTimeSlot[c.CourseID] = slots
 
-print(courseTimeSlot)
-print(courseAvail)
+        courseAvail[c.CourseID] = freeList
 
-
-
-freeRoomDict = {}   #INPUT FROM RoomOccupancy
-
-for r in session.query(Room):
-    listRO = []
-    for ro in session.query(RoomOccupancy).filter_by(RoomID=r.RoomID):
-        listRO.append(ro.DateTime)
-    freeRoomDict[r.RoomID] = listRO
-
-#print(freeRoomDict)
+    print(courseTimeSlot)
+    print(courseAvail)
 
 
-for k, v in freeRoomDict.items():
-    room = session.query(Room).filter_by(RoomID=k).first()
-    rType = room.RoomType
+    for r in session.query(Room):
+        listRO = []
+        for ro in session.query(RoomOccupancy).filter_by(RoomID=r.RoomID):
+            listRO.append(ro.DateTime)
+        freeRoomDict[r.RoomID] = listRO
 
-    newRO = v.copy()
-    for j in v:
-
-        lowestTimeSlotCourse = [None, 999]
-        coursesInThisTime = []
-
-        for x, y in courseAvail.items():
-            course = session.query(Course).filter_by(CourseID=x).first()
-            if j in y and rType == course.RoomType:
-                coursesInThisTime.append(x)
-                if courseTimeSlot[x] < lowestTimeSlotCourse[1]:
-                    lowestTimeSlotCourse[0] = x
-                    lowestTimeSlotCourse[1] = courseTimeSlot[x]
+    #print(freeRoomDict)
 
 
-        #print(lowestTimeSlotCourse)
-        if lowestTimeSlotCourse[0] != None:
-            #print("Deleting ", lowestTimeSlotCourse[0])
-            coursesInThisTime.remove(lowestTimeSlotCourse[0])
-            #print("Adding", lowestTimeSlotCourse[0], "to", i, j, freeRoom[i][j])
-            newRO[newRO.index(j)] = lowestTimeSlotCourse[0]
+    for k, v in freeRoomDict.items():
+        room = session.query(Room).filter_by(RoomID=k).first()
+        rType = room.RoomType
 
-            courseAvail.pop(lowestTimeSlotCourse[0])
+        newRO = v.copy()
+        for j in v:
 
-        #print(i, freeRoom[i][j], coursesInThisTime)
-        for x in coursesInThisTime:
-            courseTimeSlot[x] -= 1
+            lowestTimeSlotCourse = [None, 999]
+            coursesInThisTime = []
 
-    #print(k, newRO)
+            for x, y in courseAvail.items():
+                course = session.query(Course).filter_by(CourseID=x).first()
+                if j in y and rType == course.RoomType:
+                    coursesInThisTime.append(x)
+                    if courseTimeSlot[x] < lowestTimeSlotCourse[1]:
+                        lowestTimeSlotCourse[0] = x
+                        lowestTimeSlotCourse[1] = courseTimeSlot[x]
 
-    freeRoomDict[k] = newRO
 
-for k in courseAvail.keys():
-    conflictTable.append(k)
+            #print(lowestTimeSlotCourse)
+            if lowestTimeSlotCourse[0] != None:
+                #print("Deleting ", lowestTimeSlotCourse[0])
+                coursesInThisTime.remove(lowestTimeSlotCourse[0])
+                #print("Adding", lowestTimeSlotCourse[0], "to", i, j, freeRoom[i][j])
+                newRO[newRO.index(j)] = lowestTimeSlotCourse[0]
+
+                courseAvail.pop(lowestTimeSlotCourse[0])
+
+            #print(i, freeRoom[i][j], coursesInThisTime)
+            for x in coursesInThisTime:
+                courseTimeSlot[x] -= 1
+
+        #print(k, newRO)
+
+        freeRoomDict[k] = newRO
+
+    for k in courseAvail.keys():
+        conflictTable.append(k)
 
 def NiceTimeTable():             # Use this to output the Nicely formatted time table
+    generate()
     GeneratedTimeTable = []
     schedule = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
     date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
     time = ["09:00-12:00", "13:00-16:00"]
 
     for k, v in freeRoomDict.items():
-        #print(k , v)
+        print(k , v)
         for j in v:
+            #print("QUERYING", j)
             if isinstance(j, str):
                 c = session.query(Course).filter_by(CourseID=j).first()
 
@@ -113,7 +115,13 @@ def NiceTimeTable():             # Use this to output the Nicely formatted time 
     #print(GeneratedTimeTable)
     return GeneratedTimeTable
 
+def RemoveCourseFromFreeRoomDict(CourseID):
+    for k, v in freeRoomDict.items():
+        pass
+
+
 def NiceConflict():         # Use this to output a dict of professors with the conflicting classes
+    generate()
     courses = session.query(Course)
     ConflictDict = {}
 
