@@ -62,6 +62,14 @@ class UI_form_login(QWidget):
             if login_p.Password == password_inp and login_p.Email == email_inp:
                 self.updateStatusMessage("Status: Login Succesful") # Success (Professor)
                 username_read = login_p.ProfName
+
+                global niceConflict
+                niceConflict = NiceConflict()
+                if username_read in niceConflict:
+                    conf = ""
+                    for nc in niceConflict[username_read]:
+                        conf+= nc + "\n"
+                    CreateDetailedErrorMSGBox("You have Timetable Conflict!",conf,"The following classes needed to be re-schedule:")
                 widget_menu_prof.show()
                 widget_login.hide()
             else:
@@ -883,7 +891,7 @@ class UI_form_main(QWidget):
                 perpetratorList=""
                 for entry in NiceConflict():
                     perpetratorList+=entry+"\n"
-                CreateDetailedErrorMSGBox("Timetable Conflict Founded!","The Following Lecturers must change their timetable:",perpetratorList)
+                CreateDetailedErrorMSGBox("Timetable Conflict Founded!",perpetratorList,"The Following Lecturers must change their timetable:")
         else:
             CreateErrorMSGBox("One of the classes lack assigned-timeslot!")
 

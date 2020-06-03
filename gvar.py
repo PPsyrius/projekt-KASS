@@ -38,4 +38,5 @@ roomList = []
 for r in session.query(Room).order_by(Room.RoomID):
     roomList.append(r.RoomID)
 
+niceConflict = {}
 selectedCourseList = ["--Select Here--"]
