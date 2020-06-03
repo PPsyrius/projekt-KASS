@@ -11,6 +11,7 @@ from PySide2.QtGui import QIcon
 from gvar import *
 from newAlgoIntegration import *
 from messageboxes import *
+from pdfWriter import *
 
 class UI_form_login(QWidget):
     def __init__(self):
@@ -905,8 +906,8 @@ class UI_form_main(QWidget):
             CreateErrorMSGBox("One of the classes lack assigned-timeslot!")
 
     def exportPDF(self):
-        ##PLACEHOLDER##
-        pass
+        exportPdf(scheduleTableList)
+        CreateStatusMSGBox("PDF Exported!")
 
     def logOut(self):
         global username_read
@@ -977,8 +978,8 @@ class UI_form_main_prof(QWidget):
             CreateErrorMSGBox("Username not in Lecturer Database!")
 
     def exportPDF(self):
-        ##PLACEHOLDER##
-        pass
+        exportPdf(scheduleTableList)
+        CreateStatusMSGBox("PDF Exported!")
 
     def logOut(self):
         global username_read
@@ -1032,8 +1033,8 @@ class UI_form_main_guest(QWidget):
         self.table_wholeSchedule.resizeColumnsToContents()
 
     def exportPDF(self):
-        ##PLACEHOLDER##
-        pass
+        exportPdf(scheduleTableList)
+        CreateStatusMSGBox("PDF Exported!")
 
     def logOut(self):
         global username_read

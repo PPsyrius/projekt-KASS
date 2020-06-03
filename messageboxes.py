@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 import os
 from PySide2.QtWidgets import QMessageBox
 from PySide2.QtCore import QObject
