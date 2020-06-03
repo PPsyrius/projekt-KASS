@@ -50,7 +50,7 @@ class UI_form_login(QWidget):
         elif login_a:
             if login_a.Password == password_inp and login_a.Email == email_inp:
                 self.updateStatusMessage("Status: Login Succesful") # Success (Admin)
-                username_read = login_a.ProfName
+                username_read = login_a.AdminName
                 widget_menu.show()
                 widget_login.hide()
             else:
@@ -688,6 +688,207 @@ class UI_room_add(QWidget):
         widget_room_add.updateStatusMessage("Click Add Once To Pull Data")
         widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
+class UI_prof_remove(QWidget):
+    def __init__(self):
+        super(UI_prof_remove, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Remove Lecturer')
+
+        self.le_profID = self.findChild(QLineEdit, 'le_profID')
+        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
+        self.bt_back = self.findChild(QPushButton, 'bt_back')
+        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
+        self.table_profList = self.findChild(QTableView, 'table_profList')
+
+        self.bt_back.clicked.connect(self.previousPage)
+        self.bt_remove.clicked.connect(self.removeProf)
+
+        self.updateStatusMessage("Click Remove Once To Pull Data")
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_prof_remove.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateStatusMessage(self, text):
+        self.lb_statusMessage.setText(text)
+
+    def updateProfList(self):
+        global profList
+        profList = []
+        for p in session.query(Professor).order_by(Professor.ProfName):
+            profList.append(p.ProfName)
+
+        global profIDList
+        profIDList = []
+        for p in session.query(Professor).order_by(Professor.ProfID):
+            profIDList.append(p.ProfID)
+
+    def updateDB(self):
+        global profTableList
+        profTableList = []
+        for p in session.query(Professor).order_by(Professor.ProfID):
+            p_done = [p.ProfID,p.ProfName,p.Email,p.Password]
+            profTableList.append(p_done)
+
+    def updateTable(self):
+        self.updateDB()
+
+        table_model = MyTableModel(self, profTableList, profHeader)
+        self.table_profList.setModel(table_model)
+        self.table_profList.resizeColumnsToContents()
+
+    def removeProf(self):
+        profID_inp = self.le_profID.text()
+
+        pd = session.query(Professor).filter_by(ProfID=profID_inp).first()
+        
+        if not profTableList: # No DB Entry
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No Lecturer in this DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif profID_inp=="": # Update Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif not pd: # RoomID not exist!
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Invalid Lecturer ID!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        else:
+            msg = QMessageBox() # Success
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Lecturer Removed!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+            session.delete(pd)
+            
+        self.updateTable()
+        self.updateProfList()
+        ##REMOVE_THIS##session.commit()
+
+    def previousPage(self):
+        widget_menu.show()
+        widget_prof_remove.hide()
+        widget_prof_add.updateStatusMessage("Click Add Once To Pull Data")
+        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")
+
+
+class UI_prof_add(QWidget):
+    def __init__(self):
+        super(UI_prof_add, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Add Lecturer')
+
+        self.le_profID = self.findChild(QLineEdit, 'le_profID')
+        self.le_profName = self.findChild(QLineEdit, 'le_profName')
+        self.le_email = self.findChild(QLineEdit, 'le_email')
+        self.le_password = self.findChild(QLineEdit, 'le_password')
+        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
+        self.bt_back = self.findChild(QPushButton, 'bt_back')
+        self.bt_add = self.findChild(QPushButton, 'bt_add')
+        self.table_profList = self.findChild(QTableView, 'table_profList')
+
+        self.bt_back.clicked.connect(self.previousPage)
+        self.bt_add.clicked.connect(self.addProf)
+
+        self.updateStatusMessage("Click Remove Once To Pull Data")
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_prof_add.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateStatusMessage(self, text):
+        self.lb_statusMessage.setText(text)
+
+    def updateProfList(self):
+        global profList
+        profList = []
+        for p in session.query(Professor).order_by(Professor.ProfName):
+            profList.append(p.ProfName)
+
+        global profIDList
+        profIDList = []
+        for p in session.query(Professor).order_by(Professor.ProfID):
+            profIDList.append(p.ProfID)
+
+    def updateDB(self):
+        global profTableList
+        profTableList = []
+        for p in session.query(Professor).order_by(Professor.ProfID):
+            p_done = [p.ProfID,p.ProfName,p.Email,p.Password]
+            profTableList.append(p_done)
+
+    def updateTable(self):
+        self.updateDB()
+
+        table_model = MyTableModel(self, profTableList, profHeader)
+        self.table_profList.setModel(table_model)
+        self.table_profList.resizeColumnsToContents()
+
+    def addProf(self):
+        profID_inp = self.le_profID.text()
+        profName_inp = self.le_profName.text()
+        email_inp = self.le_email.text()
+        password_inp = self.le_password.text()
+        
+        if not profTableList: # Empty Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No Lecturer in DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif profID_inp=="": # Pull Data
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif profID_inp in profIDList or profName_inp in profList: # ProfID Exists
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Lecturer ID Already Exists!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif profName_inp=="" or password_inp=="" or email_inp=="": # Blank slots
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Blank Data Slot(s)!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        else: # Success
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Lecturer Added!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+            pa = Professor(ProfID=profID_inp, ProfName=profName_inp, Email=email_inp, Password=password_inp,)
+            session.add(pa)
+        self.updateTable()
+        self.updateProfList()
+        ##REMOVE_THIS##session.commit()
+
+    def previousPage(self):
+        widget_menu.show()
+        widget_prof_add.hide()
+        widget_prof_add.updateStatusMessage("Click Add Once To Pull Data")
+        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")
+
 
 class UI_form_main(QWidget):
     def __init__(self):
@@ -700,6 +901,8 @@ class UI_form_main(QWidget):
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
         self.bt_addCourse = self.findChild(QPushButton, 'bt_addCourse')
         self.bt_removeCourse = self.findChild(QPushButton, 'bt_removeCourse')
+        self.bt_addProf = self.findChild(QPushButton, 'bt_addProf')
+        self.bt_removeProf = self.findChild(QPushButton, 'bt_removeProf')
         self.bt_addRoom = self.findChild(QPushButton, 'bt_addRoom')
         self.bt_removeRoom = self.findChild(QPushButton, 'bt_removeRoom')
         self.bt_generateTable = self.findChild(QPushButton, 'bt_generateTable')
@@ -711,6 +914,8 @@ class UI_form_main(QWidget):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
         self.bt_addCourse.clicked.connect(self.addCourse)
         self.bt_removeCourse.clicked.connect(self.removeCourse)
+        self.bt_addProf.clicked.connect(self.addProf)
+        self.bt_removeProf.clicked.connect(self.removeProf)
         self.bt_addRoom.clicked.connect(self.addRoom)
         self.bt_removeRoom.clicked.connect(self.removeRoom)
         self.bt_generateTable.clicked.connect(self.generateTable)
@@ -744,16 +949,48 @@ class UI_form_main(QWidget):
         widget_menu.hide()
 
     def removeCourse(self):
-        widget_course_remove.show()
+        global courseList
+        if not courseList:
+            widget_course_remove.show()
+            widget_menu.hide()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("No Course in DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+
+    def addProf(self):
+        widget_prof_add.show()
         widget_menu.hide()
+
+    def removeProf(self):
+        global profIDList
+        if not profIDList:
+            widget_prof_remove.show()
+            widget_menu.hide()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("No Lecturer in DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
 
     def addRoom(self):
         widget_room_add.show()
         widget_menu.hide()
 
     def removeRoom(self):
-        widget_room_remove.show()
-        widget_menu.hide()
+        global roomList
+        if not roomList:
+            widget_room_remove.show()
+            widget_menu.hide()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("No Room in DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
 
     def updateTable(self):
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
@@ -945,6 +1182,8 @@ if __name__ == "__main__":
     widget_course_add = UI_course_add()
     widget_room_remove = UI_room_remove()
     widget_room_add = UI_room_add()
+    widget_prof_remove = UI_prof_remove()
+    widget_prof_add = UI_prof_add()
     widget_menu = UI_form_main()
     widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
