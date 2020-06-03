@@ -26,6 +26,7 @@ conflictTable = []
 freeRoomDict = {}  # INPUT FROM RoomOccupancy
 
 def generate():
+    generateRoomOccupancy()
 
     for c in session.query(Course):
 

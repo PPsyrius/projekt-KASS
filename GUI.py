@@ -292,7 +292,7 @@ class UI_form_pick_timeslot(QWidget):
                 else:
                     ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=52).first()
                     session.delete(ctss)
-            ##REMOVE_THIS##session.commit()
+            session.commit()
 
     def previousPage(self):
         widget_menu_prof.show()
@@ -366,7 +366,7 @@ class UI_course_remove(QWidget):
             
         self.updateTable()
         self.updateCourseList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()
@@ -456,7 +456,7 @@ class UI_course_add(QWidget):
             session.add(ca)                     
         self.updateTable()
         self.updateCourseList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()
@@ -532,7 +532,7 @@ class UI_room_remove(QWidget):
             
         self.updateTable()
         self.updateRoomList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()
@@ -614,10 +614,10 @@ class UI_room_add(QWidget):
         else: # Success
             CreateStatusMSGBox("Room Added!")
             ra = Room(RoomID=roomID_inp, Capacity=int(capacity_inp), RoomType=roomtype_inp)
-            session.add(ra)                     
+            session.add(ra)
         self.updateTable()
         self.updateRoomList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()
@@ -697,7 +697,7 @@ class UI_prof_remove(QWidget):
             
         self.updateTable()
         self.updateProfList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()
@@ -784,7 +784,7 @@ class UI_prof_add(QWidget):
             session.add(pa)
         self.updateTable()
         self.updateProfList()
-        ##REMOVE_THIS##session.commit()
+        session.commit()
 
     def previousPage(self):
         widget_menu.show()

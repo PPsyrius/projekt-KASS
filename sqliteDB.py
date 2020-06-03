@@ -114,6 +114,7 @@ def generateRoomOccupancy():
         for dt in dateTimeList:
             newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
             session.add(newRO)
+    session.commit()
 
 """
 r1 = Room(RoomID="IC01", RoomType="Lecture", Capacity=50)
