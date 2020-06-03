@@ -150,11 +150,6 @@ class UI_form_pick_timeslot(QWidget):
             self.lbb_NoStudents.setText(str(c.NoStudents))
             self.lbb_RoomType.setText(c.RoomType)
             self.lbb_CourseName.setText(c.CourseName)
-            
-        for c in session.query(Course).filter_by(Course.CourseID):
-            c_done = [c.CourseID,c.CourseName,c.NoStudents,c.ProfName,c.RoomType]
-            selectedCourseTableList.append(c_done)
-            selectedCourseList.append(c.CourseID)
 
     def CbLoadState(self):
         self.updateDB()
@@ -490,6 +485,210 @@ class UI_course_add(QWidget):
         widget_course_add.updateStatusMessage("Click Add Once To Pull Data")
         widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
 
+
+class UI_room_remove(QWidget):
+    def __init__(self):
+        super(UI_room_remove, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Remove Room')
+
+        self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
+        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
+        self.bt_back = self.findChild(QPushButton, 'bt_back')
+        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
+        self.table_roomList = self.findChild(QTableView, 'table_roomList')
+
+        self.bt_back.clicked.connect(self.previousPage)
+        self.bt_remove.clicked.connect(self.removeRoom)
+
+        self.updateStatusMessage("Click Remove Once To Pull Data")
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_room_remove.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateStatusMessage(self, text):
+        self.lb_statusMessage.setText(text)
+
+    def updateRoomList(self):
+        global roomList
+        roomList = []
+        for r in session.query(Room).order_by(Room.RoomID):
+            roomList.append(r.RoomID)
+
+    def updateDB(self):
+        global roomTableList
+        roomTableList = []
+        for r in session.query(Room).order_by(Room.RoomID):
+            r_done = [r.RoomID,r.Capacity,r.RoomType]
+            roomTableList.append(r_done)
+
+    def updateTable(self):
+        self.updateDB()
+
+        table_model = MyTableModel(self, roomTableList, roomHeader)
+        self.table_roomList.setModel(table_model)
+        self.table_roomList.resizeColumnsToContents()
+
+    def removeRoom(self):
+        roomID_inp = self.le_roomID.text()
+
+        rd = session.query(Room).filter_by(RoomID=roomID_inp).first()
+        
+        if not roomTableList: # No DB Entry
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No room in this DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif roomID_inp=="": # Update Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif not rd: # RoomID not exist!
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Invalid Room ID!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        else:
+            msg = QMessageBox() # Success
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Room Removed!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+            session.delete(rd)
+            
+        self.updateTable()
+        self.updateRoomList()
+        ##REMOVE_THIS##session.commit()
+
+    def previousPage(self):
+        widget_menu.show()
+        widget_room_remove.hide()
+        widget_room_add.updateStatusMessage("Click Add Once To Pull Data")
+        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")
+
+
+class UI_room_add(QWidget):
+    def __init__(self):
+        super(UI_room_add, self).__init__()
+        self.load_ui()
+
+        self.setWindowTitle('KMITL Academic Scheduler System: Add Room')
+
+        self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
+        self.le_capacity = self.findChild(QLineEdit, 'le_capacity')
+        self.cb_roomtype = self.findChild(QComboBox, 'cb_roomtype')
+        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
+        self.bt_back = self.findChild(QPushButton, 'bt_back')
+        self.bt_add = self.findChild(QPushButton, 'bt_add')
+        self.table_roomList = self.findChild(QTableView, 'table_roomList')
+
+        self.cb_roomtype.addItems(roomType)
+        self.bt_back.clicked.connect(self.previousPage)
+        self.bt_add.clicked.connect(self.addRoom)
+
+        self.updateStatusMessage("Click Remove Once To Pull Data")
+
+    def load_ui(self):
+        loader = QUiLoader()
+        path = os.path.join(os.path.dirname(__file__), "form_room_add.ui")
+        ui_file = QFile(path)
+        ui_file.open(QFile.ReadOnly)
+        loader.load(ui_file, self)
+        ui_file.close()
+
+    def updateStatusMessage(self, text):
+        self.lb_statusMessage.setText(text)
+
+    def updateRoomList(self):
+        global roomList
+        roomList = []
+        for r in session.query(Room).order_by(Room.RoomID):
+            roomList.append(r.RoomID)
+
+    def updateDB(self):
+        global roomTableList
+        roomTableList = []
+        for r in session.query(Room).order_by(Room.RoomID):
+            r_done = [r.RoomID,r.Capacity,r.RoomType]
+            roomTableList.append(r_done)
+
+    def updateTable(self):
+        self.updateDB()
+
+        table_model = MyTableModel(self, roomTableList, roomHeader)
+        self.table_roomList.setModel(table_model)
+        self.table_roomList.resizeColumnsToContents()
+
+    def addRoom(self):
+        roomID_inp = self.le_roomID.text()
+        capacity_inp = self.le_capacity.text()
+        roomtype_inp = self.cb_roomtype.currentText()
+        
+        if not roomTableList: # Empty Table
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("No room in DB!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif roomID_inp=="": # Pull Data
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Table Updated!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+        elif roomID_inp in roomList: # CourseID Exists
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Room ID Already Exists!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif capacity_inp=="": # Blank slots
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Blank Data Slot(s)!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif not capacity_inp.isdecimal(): # Capacity Not Integer
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Capacity must be Integer!")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif int(capacity_inp)<=0: # <=0
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Capacity must be Positive!")
+            msg.setWindowTitle("Error!")
+            msg.exec_()
+        else: # Success
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Room Added!")
+            msg.setWindowTitle("Status")
+            msg.exec_()
+            ra = Room(RoomID=roomID_inp, Capacity=int(capacity_inp), RoomType=roomtype_inp)
+            session.add(ra)                     
+        self.updateTable()
+        self.updateRoomList()
+        ##REMOVE_THIS##session.commit()
+
+    def previousPage(self):
+        widget_menu.show()
+        widget_room_add.hide()
+        widget_room_add.updateStatusMessage("Click Add Once To Pull Data")
+        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")
+
+
 class UI_form_main(QWidget):
     def __init__(self):
         super(UI_form_main, self).__init__()
@@ -744,12 +943,13 @@ if __name__ == "__main__":
     widget_pick_timeslot = UI_form_pick_timeslot()
     widget_course_remove = UI_course_remove()
     widget_course_add = UI_course_add()
-    #widget_room_remove = UI_room_remove()
-    #widget_room_add = UI_room_add()
+    widget_room_remove = UI_room_remove()
+    widget_room_add = UI_room_add()
     widget_menu = UI_form_main()
     widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
     
-    widget_login.show()
+    #widget_login.show()
+    widget_room_remove.show()
     
     sys.exit(app.exec_())

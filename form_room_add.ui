@@ -48,44 +48,19 @@
      <item>
       <layout class="QHBoxLayout" name="CourseIdBox">
        <item>
-        <widget class="QLabel" name="lb_courseID">
+        <widget class="QLabel" name="lb_roomID">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Course ID:</string>
+          <string>Room ID:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="le_courseID">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="CourseNameBox">
-       <item>
-        <widget class="QLabel" name="lb_courseName">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Course Name:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="le_courseName">
+        <widget class="QLineEdit" name="le_roomID">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -111,31 +86,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="le_capacity">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="ProfBox">
-       <item>
-        <widget class="QLabel" name="lb_prof">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Lecturer:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cb_prof">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -178,7 +128,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Add Course</string>
+        <string>Add Room</string>
        </property>
       </widget>
      </item>
@@ -241,7 +191,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QTableView" name="table_courseList">
+    <widget class="QTableView" name="table_roomList">
      <property name="enabled">
       <bool>true</bool>
      </property>

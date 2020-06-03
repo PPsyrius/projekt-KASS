@@ -4,6 +4,7 @@
 from sqliteDB import *
 
 username_read = "Guest"
+
 scheduleHeader = [ 'Location', 'Date', 'Time', 'ClassID', 'Class', 'Lecturer']
 scheduleTableList = [
     ['','','','','','']
@@ -11,6 +12,10 @@ scheduleTableList = [
 courseHeader = ['Course ID', 'Course Name', 'Class Capacity', 'Lecturer', 'Classroom Type']
 courseTableList = [
     ['','','','','']
+]
+roomHeader = ['Room ID', 'Room Capacity', 'Classroom Type']
+roomTableList = [
+    ['','','']
 ]
 date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 time = ['09:00-12:00', '13:00-16:00']
@@ -23,5 +28,9 @@ for p in session.query(Professor).order_by(Professor.ProfName):
 courseList = []
 for c in session.query(Course).order_by(Course.CourseID):
     profList.append(c.CourseID)
+
+roomList = []
+for r in session.query(Room).order_by(Room.RoomID):
+    roomList.append(r.RoomID)
 
 selectedCourseList = ["--Select Here--"]

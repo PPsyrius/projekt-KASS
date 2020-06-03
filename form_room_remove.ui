@@ -46,7 +46,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLineEdit" name="le_courseID">
+      <widget class="QLineEdit" name="le_roomID">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -62,7 +62,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Remove Course ID</string>
+        <string>Remove Room ID</string>
        </property>
       </widget>
      </item>
@@ -125,7 +125,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QTableView" name="table_courseList">
+    <widget class="QTableView" name="table_roomList">
      <property name="enabled">
       <bool>true</bool>
      </property>
