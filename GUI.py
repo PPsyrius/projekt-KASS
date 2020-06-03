@@ -1079,9 +1079,19 @@ class UI_form_main_prof(QWidget):
 
     def adjustTimetable(self):
         if username_read in profList:
-            widget_pick_timeslot.updateSelectedCourseList()
-            widget_pick_timeslot.show()
-            widget_menu_prof.hide()
+            selectedCourseList = []
+            for c in session.query(Course).filter_by(ProfName=username_read).order_by(Course.CourseID):
+                selectedCourseList.append(c.CourseID)
+            if selectedCourseList:
+                widget_pick_timeslot.updateSelectedCourseList()
+                widget_pick_timeslot.show()
+                widget_menu_prof.hide()
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("No course in DB for you!")
+                msg.setWindowTitle("Error")
+                msg.exec_()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
