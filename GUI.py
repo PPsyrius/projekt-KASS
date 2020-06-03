@@ -158,10 +158,11 @@ class UI_form_pick_timeslot(QWidget):
         cID = self.cb_currentSubject.currentText()
         if cID!= "--Select Here--":
             c = session.query(Course).filter_by(CourseID=cID).first()
-            self.lbb_ProfName.setText(c.ProfName)
-            self.lbb_NoStudents.setText(str(c.NoStudents))
-            self.lbb_RoomType.setText(c.RoomType)
-            self.lbb_CourseName.setText(c.CourseName)
+            if c!=None:
+                self.lbb_ProfName.setText(c.ProfName)
+                self.lbb_NoStudents.setText(str(c.NoStudents))
+                self.lbb_RoomType.setText(c.RoomType)
+                self.lbb_CourseName.setText(c.CourseName)
 
     def CbLoadState(self):
         self.updateDB()
