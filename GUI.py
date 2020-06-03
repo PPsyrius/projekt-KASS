@@ -311,7 +311,7 @@ class UI_course_remove(QWidget):
         global courseList
         courseList = []
         for c in session.query(Course).order_by(Course.CourseID):
-            profList.append(c.CourseID)
+            courseList.append(c.CourseID)
 
     def updateDB(self):
         global courseTableList
@@ -408,7 +408,7 @@ class UI_course_add(QWidget):
         global courseList
         courseList = []
         for c in session.query(Course).order_by(Course.CourseID):
-            profList.append(c.CourseID)
+            courseList.append(c.CourseID)
 
     def updateDB(self):
         global courseTableList
