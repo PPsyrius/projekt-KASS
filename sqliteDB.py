@@ -110,10 +110,16 @@ def NiceSavedTable():
 
 def generateRoomOccupancy():
     dateTimeList = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
+    roomList = []
+    for ro in session.query(RoomOccupancy):
+        if ro.RoomID not in roomList:
+            roomList.append(ro.RoomID)
+
     for r in session.query(Room):
-        for dt in dateTimeList:
-            newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
-            session.add(newRO)
+        if r.RoomID not in roomList:
+            for dt in dateTimeList:
+                newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
+                session.add(newRO)
     session.commit()
 
 """
