@@ -1024,6 +1024,7 @@ class UI_form_main_guest(QWidget):
         self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
     def updateTable(self):
+        global scheduleTableList
         saved_generated_data = NiceSavedTable()
         if saved_generated_data:
             scheduleTableList = saved_generated_data
