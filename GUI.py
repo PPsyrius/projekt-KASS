@@ -6,6 +6,7 @@ import datetime
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox, QTableWidgetItem, QMessageBox
 from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide2.QtUiTools import QUiLoader
+from PySide2.QtGui import QIcon
 
 from gvar import *
 from newAlgoIntegration import *
@@ -16,6 +17,7 @@ class UI_form_login(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Authentication')
+        self.setWindowIcon(QIcon('icon64.png'))
         
         self.lb_logInStatus = self.findChild(QLabel, 'lb_logInStatus')
         self.bt_logIn = self.findChild(QPushButton, 'bt_logIn')
@@ -76,6 +78,7 @@ class UI_form_pick_timeslot(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Pick Timeslot')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.cb_currentSubject = self.findChild(QComboBox, 'cb_currentSubject')
         self.bt_11 = self.findChild(QPushButton, 'bt_11')
@@ -284,6 +287,7 @@ class UI_course_remove(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Remove Course')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
         self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
@@ -375,6 +379,7 @@ class UI_course_add(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Add Course')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
         self.le_courseName = self.findChild(QLineEdit, 'le_courseName')
@@ -492,6 +497,7 @@ class UI_room_remove(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Remove Room')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
         self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
@@ -583,6 +589,7 @@ class UI_room_add(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Add Room')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
         self.le_capacity = self.findChild(QLineEdit, 'le_capacity')
@@ -694,6 +701,7 @@ class UI_prof_remove(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Remove Lecturer')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_profID = self.findChild(QLineEdit, 'le_profID')
         self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
@@ -790,6 +798,7 @@ class UI_prof_add(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Add Lecturer')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.le_profID = self.findChild(QLineEdit, 'le_profID')
         self.le_profName = self.findChild(QLineEdit, 'le_profName')
@@ -896,6 +905,7 @@ class UI_form_main(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
@@ -1043,6 +1053,7 @@ class UI_form_main_prof(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
@@ -1122,6 +1133,7 @@ class UI_form_main_guest(QWidget):
         self.load_ui()
 
         self.setWindowTitle('KMITL Academic Scheduler System: Guess View')
+        self.setWindowIcon(QIcon('icon64.png'))
 
         self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
         self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
