@@ -3,10 +3,10 @@ import sys
 import os
 import datetime
 
-from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox
-from PySide2.QtCore import QFile, QTimer, QAbstractTableModel, Qt
-from PySide2.QtUiTools import QUiLoader
-from PySide2.QtGui import QIcon
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox
+from PySide6.QtCore import QFile, QTimer, QAbstractTableModel, Qt
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtGui import QIcon
 
 from gvar import *
 from newAlgoIntegration import *
