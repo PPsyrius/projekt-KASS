@@ -11,7 +11,7 @@ def CreateErrorMSGBox(text):
     msg.setWindowIcon(QIcon('icon64.png'))
     msg.setText(text)
     msg.setWindowTitle("Error")
-    msg.exec_()
+    msg.exec()
 
 def CreateStatusMSGBox(text):
     msg = QMessageBox()
@@ -19,7 +19,7 @@ def CreateStatusMSGBox(text):
     msg.setWindowIcon(QIcon('icon64.png'))
     msg.setText(text)
     msg.setWindowTitle("Status")
-    msg.exec_()
+    msg.exec()
 
 def CreateDetailedErrorMSGBox(text,detailed_text,informative_text):
     msg = QMessageBox()
@@ -29,4 +29,4 @@ def CreateDetailedErrorMSGBox(text,detailed_text,informative_text):
     msg.setInformativeText(informative_text)
     msg.setDetailedText(detailed_text)
     msg.setWindowTitle("Error")
-    msg.exec_()
+    msg.exec()

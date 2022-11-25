@@ -1084,4 +1084,4 @@ if __name__ == "__main__":
     
     widget_login.show()
     
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
