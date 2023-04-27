@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 
-from sqliteDB import *
+from sqliteDB import session, Course, CourseTimeSlot, Room, RoomOccupancy, NiceSavedTable
 
 def readyToGenerate():      # Check if every course has at least one CourseTimeSlot
     cIDcheck = []

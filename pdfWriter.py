@@ -1,8 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import matplotlib.pyplot as plt
 
-from gvar import *
-from newAlgoIntegration import *
+from gvar import scheduleTableList
 
 def exportPdf(scheduleTableList):
     colLabels = [ 'Location', 'Date', 'Time', 'ClassID', 'Class', 'Lecturer']

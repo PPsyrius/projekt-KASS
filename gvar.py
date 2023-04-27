@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # Global Variables are stored here
 
-from sqliteDB import *
+from sqliteDB import session, Professor, Course, Room
 
 username_read = "Guest"
 
@@ -26,6 +26,7 @@ time = ['09:00-12:00', '13:00-16:00']
 roomType = ['Lecture', 'ComLab']
 
 profList = []
+
 for p in session.query(Professor).order_by(Professor.ProfName):
     profList.append(p.ProfName)
 profIDList = []

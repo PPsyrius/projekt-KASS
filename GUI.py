@@ -3,15 +3,22 @@ import sys
 import os
 import datetime
 
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableView, QLineEdit, QComboBox
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PySide6.QtWidgets import QTableView, QLineEdit, QComboBox
 from PySide6.QtCore import QFile, QTimer, QAbstractTableModel, Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QIcon
 
-from gvar import *
-from newAlgoIntegration import *
-from messageboxes import *
-from pdfWriter import *
+from gvar import username_read, scheduleHeader, scheduleTableList, courseHeader
+from gvar import courseTableList, profHeader, profTableList, roomHeader
+from gvar import roomTableList, date, time, roomType, profList, profIDList
+from gvar import courseList, roomList, niceConflict
+from gvar import selectedCourseList
+from algo import generate, readyToGenerate, NiceConflict
+from algo import NiceSavedTable, RemoveCourseFromFreeRoomDict
+from messageboxes import CreateDetailedErrorMSGBox, CreateErrorMSGBox, CreateStatusMSGBox
+from pdfWriter import exportPdf
+from sqliteDB import session, Professor, Course, Room
 
 class UI_form_login(QWidget):
     def __init__(self):
@@ -20,7 +27,7 @@ class UI_form_login(QWidget):
 
         self.setWindowTitle('KMITL Academic Scheduler System: Authentication')
         self.setWindowIcon(QIcon('icon64.png'))
-        
+
         self.lb_logInStatus = self.findChild(QLabel, 'lb_logInStatus')
         self.bt_logIn = self.findChild(QPushButton, 'bt_logIn')
         self.bt_guestAccess = self.findChild(QPushButton, 'bt_guestAccess')
@@ -29,7 +36,7 @@ class UI_form_login(QWidget):
 
         self.bt_logIn.clicked.connect(self.authenLogIn)
         self.bt_guestAccess.clicked.connect(self.guestLogIn)
-        
+
     def load_ui(self):
         loader = QUiLoader()
         path = os.path.join(os.path.dirname(__file__), "form_login.ui")
@@ -116,7 +123,7 @@ class UI_form_pick_timeslot(QWidget):
         self.lbb_CourseName = self.findChild(QLabel, 'lbb_CourseName')
 
         self.updateSelectedCourseList()
-    
+
         self.cb_currentSubject.addItems(selectedCourseList)
         self.cb_currentSubject.currentTextChanged.connect(self.CbLoadState)
         self.bt_11.clicked.connect(self.BtToggleState)
@@ -157,7 +164,7 @@ class UI_form_pick_timeslot(QWidget):
             selectedCourseList.append(c.CourseID)
         self.cb_currentSubject.clear()
         self.cb_currentSubject.addItems(selectedCourseList)
-        
+
     def updateDB(self):
         self.lbb_ProfName.setText('-')
         self.lbb_NoStudents.setText('-')
@@ -186,7 +193,7 @@ class UI_form_pick_timeslot(QWidget):
         self.bt_32.setChecked(False)
         self.bt_42.setChecked(False)
         self.bt_52.setChecked(False)
-        
+
         cID = self.cb_currentSubject.currentText()
         if cID!= "--Select Here--":
             for ts in session.query(CourseTimeSlot).filter_by(CourseID=cID).order_by(CourseTimeSlot.DateTime):
@@ -210,7 +217,7 @@ class UI_form_pick_timeslot(QWidget):
                     self.bt_42.setChecked(True)
                 elif ts.DateTime==52:
                     self.bt_52.setChecked(True)
-                    
+
     def BtToggleState(self):
         cID = self.cb_currentSubject.currentText()
         if cID!= "--Select Here--":
@@ -297,7 +304,7 @@ class UI_form_pick_timeslot(QWidget):
 
     def previousPage(self):
         widget_menu_prof.show()
-        widget_pick_timeslot.hide() 
+        widget_pick_timeslot.hide()
 
 
 class UI_course_remove(QWidget):
@@ -354,7 +361,7 @@ class UI_course_remove(QWidget):
         courseID_inp = self.le_courseID.text()
 
         cd = session.query(Course).filter_by(CourseID=courseID_inp).first()
-        
+
         if not courseTableList: # No DB Entry
             CreateWarningMSGBox("No Course in DB by this user!")
         elif courseID_inp=="": # Update Table
@@ -364,7 +371,7 @@ class UI_course_remove(QWidget):
         else: # Status
             CreateStatusMSGBox("Course Removed!")
             session.delete(cd)
-            
+
         self.updateTable()
         self.updateCourseList()
         session.commit()
@@ -438,7 +445,7 @@ class UI_course_add(QWidget):
         capacity_inp = self.le_capacity.text()
         prof_inp = self.cb_prof.currentText()
         roomtype_inp = self.cb_roomtype.currentText()
-        
+
         if not courseTableList: # Empty Table
             CreateWarningMSGBox("No Course in DB by this user!")
         elif courseID_inp=="": # Pull Data
@@ -454,7 +461,7 @@ class UI_course_add(QWidget):
         else: # Success
             CreateStatusMSGBox("Course Added!")
             ca = Course(CourseID=courseID_inp, CourseName=courseName_inp, NoStudents=int(capacity_inp), ProfName=prof_inp, RoomType=roomtype_inp)
-            session.add(ca)                     
+            session.add(ca)
         self.updateTable()
         self.updateCourseList()
         session.commit()
@@ -520,7 +527,7 @@ class UI_room_remove(QWidget):
         roomID_inp = self.le_roomID.text()
 
         rd = session.query(Room).filter_by(RoomID=roomID_inp).first()
-        
+
         if not roomTableList: # No DB Entry
             CreateErrorMSGBox("No room in this DB!")
         elif roomID_inp=="": # Update Table
@@ -530,7 +537,7 @@ class UI_room_remove(QWidget):
         else:
             CreateStatusMSGBox("Room Removed!")
             session.delete(rd)
-            
+
         self.updateTable()
         self.updateRoomList()
         session.commit()
@@ -599,7 +606,7 @@ class UI_room_add(QWidget):
         roomID_inp = self.le_roomID.text()
         capacity_inp = self.le_capacity.text()
         roomtype_inp = self.cb_roomtype.currentText()
-        
+
         if not roomTableList: # Empty Table
             CreateErrorMSGBox("No room in DB!")
         elif roomID_inp=="": # Pull Data
@@ -685,7 +692,7 @@ class UI_prof_remove(QWidget):
         profID_inp = self.le_profID.text()
 
         pd = session.query(Professor).filter_by(ProfID=profID_inp).first()
-        
+
         if not profTableList: # No DB Entry
             CreateErrorMSGBox("No Lecturer in this DB!")
         elif profID_inp=="": # Update Table
@@ -695,7 +702,7 @@ class UI_prof_remove(QWidget):
         else:
             CreateStatusMSGBox("Lecturer Removed!")
             session.delete(pd)
-            
+
         self.updateTable()
         self.updateProfList()
         session.commit()
@@ -770,7 +777,7 @@ class UI_prof_add(QWidget):
         profName_inp = self.le_profName.text()
         email_inp = self.le_email.text()
         password_inp = self.le_password.text()
-        
+
         if not profTableList: # Empty Table
             CreateErrorMSGBox("No Lecturer in DB!")
         elif profID_inp=="": # Pull Data
@@ -958,7 +965,7 @@ class UI_form_main_prof(QWidget):
         self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
         self.lb_welcome.setText("Welcome, " + username_read )
 
-    def updateTable(self):    
+    def updateTable(self):
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
         self.table_wholeSchedule.setModel(table_model)
         self.table_wholeSchedule.resizeColumnsToContents()
@@ -1081,7 +1088,7 @@ if __name__ == "__main__":
     widget_menu = UI_form_main()
     widget_menu_prof = UI_form_main_prof()
     widget_menu_guest = UI_form_main_guest()
-    
+
     widget_login.show()
-    
+
     sys.exit(app.exec())

@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 
-from sqlalchemy import *
+from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import sqlite3
