@@ -1,8 +1,6 @@
 # This Python file uses the following encoding: utf-8
-import os
 from PySide6.QtWidgets import QMessageBox
-from PySide6.QtCore import QObject
-from PySide6.QtGui import QPaintDevice, QIcon
+from PySide6.QtGui import QIcon
 
 ## Message Boxes ##
 def CreateErrorMSGBox(text):
