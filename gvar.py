@@ -1,5 +1,7 @@
 # Global Variables are stored here
 
+from typing import Any, Dict
+
 from sqliteDB import Course, Professor, Room, session
 
 username_read = "Guest"
@@ -36,5 +38,5 @@ roomList = []
 for r in session.query(Room).order_by(Room.RoomID):
     roomList.append(r.RoomID)
 
-niceConflict = {}
+niceConflict = Dict[str, Any]
 selectedCourseList = ["--Select Here--"]

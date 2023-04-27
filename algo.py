@@ -149,7 +149,7 @@ def RemoveCourseFromFreeRoomDict(CourseID):
         pass
 
 
-def NiceConflict():  # Uutput a dict of professors with the conflicting classes
+def NiceConflict():  # Output a dict of professors with the conflicting classes
     generate()
     courses = session.query(Course)
     ConflictDict = {}

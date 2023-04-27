@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Any  # type: ignore # noqa: F401
 
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,7 +9,7 @@ sqlite3.connect("kass.db")
 
 engine = create_engine("sqlite:///kass.db", echo=True)
 
-Base = declarative_base()
+Base = declarative_base()  # type: Any
 Session = sessionmaker(bind=engine)
 session = Session()
 
