@@ -1,13 +1,12 @@
-# This Python file uses the following encoding: utf-8
-
-from sqlalchemy import create_engine, Column, String, Integer
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 import sqlite3
+
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 sqlite3.connect("kass.db")
 
-engine = create_engine('sqlite:///kass.db', echo=True)
+engine = create_engine("sqlite:///kass.db", echo=True)
 
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
@@ -23,7 +22,9 @@ class Admin(Base):
     Password = Column(String)
 
     def __repr__(self):
-        return "Admin(AdminID = {}, AdminName = {}, Email = {}, Password = {})".format(self.AdminID, self.AdminName, self.Email, self.Password)
+        return str(
+            "Admin(AdminID = {}, AdminName = {}, Email = {}, Password = {})"
+        ).format(self.AdminID, self.AdminName, self.Email, self.Password)
 
 
 class Professor(Base):
@@ -35,18 +36,22 @@ class Professor(Base):
     Password = Column(String)
 
     def __repr__(self):
-        return "Professor(ProfID = {}, ProfName = {}, Email = {}, Password = {})".format(self.ProfID, self.ProfName, self.Email, self.Password)
+        return str(
+            "Professor(ProfID = {}, ProfName = {}, Email = {}, Password = {})"
+        ).format(self.ProfID, self.ProfName, self.Email, self.Password)
 
 
 class Room(Base):
     __tablename__ = "rooms"
 
     RoomID = Column(String, primary_key=True)
-    RoomType = Column(String) # ComLab, Lecture
+    RoomType = Column(String)  # ComLab, Lecture
     Capacity = Column(Integer)
 
     def __repr__(self):
-        return "Room(RoomID = {}, RoomType = {}, Capacity = {})".format(self.RoomID, self.RoomType, self.Capacity)
+        return str("Room(RoomID = {}, RoomType = {}, Capacity = {})").format(
+            self.RoomID, self.RoomType, self.Capacity
+        )
 
 
 class RoomOccupancy(Base):
@@ -57,11 +62,13 @@ class RoomOccupancy(Base):
     CourseID = Column(String)
 
     def __repr__(self):
-        return "RoomOccupancy(RoomID = {}, DateTime = {}, CourseID = {})".format(self.RoomID, self.DateTime, self.CourseID)
+        return str("RoomOccupancy(RoomID = {}, DateTime = {}, CourseID = {})").format(  # type: ignore # noqa: E501
+            self.RoomID, self.DateTime, self.CourseID
+        )
 
 
 class Course(Base):
-    __tablename__ = 'courses'
+    __tablename__ = "courses"
 
     CourseID = Column(String, primary_key=True)
     CourseName = Column(String)
@@ -70,7 +77,14 @@ class Course(Base):
     RoomType = Column(String)  # ComLab, Lecture
 
     def __repr__(self):
-        return "Course(CourseID = {}, CourseName = {}, NoStudents = {}, ProfName = {})".format(self.CourseID, self.CourseName, self.NoStudents, self.ProfName)
+        return str(
+            "Course(CourseID = {}, CourseName = {}, " "NoStudents = {}, ProfName = {})"  # type: ignore # noqa: E501
+        ).format(
+            self.CourseID,
+            self.CourseName,
+            self.NoStudents,
+            self.ProfName,
+        )
 
 
 class CourseTimeSlot(Base):
@@ -80,7 +94,10 @@ class CourseTimeSlot(Base):
     DateTime = Column(Integer, primary_key=True)
 
     def __repr__(self):
-        return "CourseTimeSlot(CourseID = {}, DateTime = {})".format(self.CourseID, self.DateTime)
+        return str("CourseTimeSlot(CourseID = {}, DateTime = {})").format(
+            self.CourseID, self.DateTime
+        )
+
 
 class GeneratedTable(Base):
     __tablename__ = "generatedtable"
@@ -91,22 +108,32 @@ class GeneratedTable(Base):
     Time = Column(String)
 
     def __repr__(self):
-        return "CourseTimeSlot(RoomID = {}, DateTimeCourse = {})".format(self.RoomID, self.DateTimeCourse)
+        return str("CourseTimeSlot(RoomID = {}, DateTimeCourse = {})").format(
+            self.RoomID, self.DateTimeCourse
+        )
+
 
 Base.metadata.create_all(engine)
 
-def NiceSavedTable():
 
+def NiceSavedTable():
     newNiceTable = []
     for rd in session.query(GeneratedTable):
-
         if int(rd.DateTimeCourse) > 52:
-            c = session.query(Course).filter_by(CourseID=rd.DateTimeCourse).first()
-            newTimeTable = [rd.RoomID, rd.Date, rd.Time, rd.DateTimeCourse, c.CourseName, c.ProfName]
+            c = session.query(Course).filter_by(CourseID=rd.DateTimeCourse).first()  # type: ignore # noqa: E501
+            newTimeTable = [
+                rd.RoomID,
+                rd.Date,
+                rd.Time,
+                rd.DateTimeCourse,
+                c.CourseName,
+                c.ProfName,
+            ]
             newNiceTable.append(newTimeTable)
 
-    #print(newNiceTable)
+    # print(newNiceTable)
     return newNiceTable
+
 
 def generateRoomOccupancy():
     dateTimeList = [11, 12, 21, 22, 31, 32, 41, 42, 51, 52]
@@ -118,9 +145,14 @@ def generateRoomOccupancy():
     for r in session.query(Room):
         if r.RoomID not in roomList:
             for dt in dateTimeList:
-                newRO = RoomOccupancy(RoomID=r.RoomID, DateTime=dt, CourseID=None)
+                newRO = RoomOccupancy(
+                    RoomID=r.RoomID,
+                    DateTime=dt,
+                    CourseID=None,
+                )
                 session.add(newRO)
     session.commit()
+
 
 """
 r1 = Room(RoomID="IC01", RoomType="Lecture", Capacity=50)
@@ -139,7 +171,13 @@ courseToAdd = []
 
 courseTStoAdd = []
 
-c1 = Course(CourseID="1300", CourseName="Python", NoStudents=49, ProfName="Dr Visit", RoomType="Lecture")
+c1 = Course(
+    CourseID="1300",
+    CourseName="Python",
+    NoStudents=49,
+    ProfName="Dr Visit",
+    RoomType="Lecture",
+)
 
 cts1 = CourseTimeSlot(CourseID="1300", DateTime=12)
 cts2 = CourseTimeSlot(CourseID="1300", DateTime=22)
@@ -149,7 +187,13 @@ courseTStoAdd.append(cts1)
 courseTStoAdd.append(cts2)
 courseTStoAdd.append(cts3)
 
-c2 = Course(CourseID="1301", CourseName="Python Lab", NoStudents=49, ProfName="Dr Visit", RoomType="ComLab")
+c2 = Course(
+    CourseID="1301",
+    CourseName="Python Lab",
+    NoStudents=49,
+    ProfName="Dr Visit",
+    RoomType="ComLab",
+)
 
 cts4 = CourseTimeSlot(CourseID="1301", DateTime=42)
 cts5 = CourseTimeSlot(CourseID="1301", DateTime=52)
@@ -159,7 +203,13 @@ courseTStoAdd.append(cts4)
 courseTStoAdd.append(cts5)
 courseTStoAdd.append(cts6)
 
-c3 = Course(CourseID="1302", CourseName="C", NoStudents=49, ProfName="Dr Ukrit", RoomType="Lecture")
+c3 = Course(
+    CourseID="1302",
+    CourseName="C",
+    NoStudents=49,
+    ProfName="Dr Ukrit",
+    RoomType="Lecture",
+)
 
 cts7 = CourseTimeSlot(CourseID="1302", DateTime=31)
 cts8 = CourseTimeSlot(CourseID="1302", DateTime=51)
@@ -167,7 +217,13 @@ cts8 = CourseTimeSlot(CourseID="1302", DateTime=51)
 courseTStoAdd.append(cts7)
 courseTStoAdd.append(cts8)
 
-c4 = Course(CourseID="1303", CourseName="C Lab", NoStudents=49, ProfName="Dr Ukrit", RoomType="ComLab")
+c4 = Course(
+    CourseID="1303",
+    CourseName="C Lab",
+    NoStudents=49,
+    ProfName="Dr Ukrit",
+    RoomType="ComLab",
+)
 
 cts9 = CourseTimeSlot(CourseID="1303", DateTime=42)
 cts10 = CourseTimeSlot(CourseID="1303", DateTime=41)
@@ -175,7 +231,13 @@ cts10 = CourseTimeSlot(CourseID="1303", DateTime=41)
 courseTStoAdd.append(cts9)
 courseTStoAdd.append(cts10)
 
-c5 = Course(CourseID="1304", CourseName="Logic", NoStudents=30, ProfName="Dr Natthapong", RoomType="Lecture")
+c5 = Course(
+    CourseID="1304",
+    CourseName="Logic",
+    NoStudents=30,
+    ProfName="Dr Natthapong",
+    RoomType="Lecture",
+)
 
 cts11 = CourseTimeSlot(CourseID="1304", DateTime=12)
 cts12 = CourseTimeSlot(CourseID="1304", DateTime=32)
@@ -183,7 +245,13 @@ cts12 = CourseTimeSlot(CourseID="1304", DateTime=32)
 courseTStoAdd.append(cts11)
 courseTStoAdd.append(cts12)
 
-c6 = Course(CourseID="1305", CourseName="Electricity", NoStudents=47, ProfName="Dr Michael", RoomType="Lecture")
+c6 = Course(
+    CourseID="1305",
+    CourseName="Electricity",
+    NoStudents=47,
+    ProfName="Dr Michael",
+    RoomType="Lecture",
+)
 
 cts13 = CourseTimeSlot(CourseID="1305", DateTime=52)
 cts14 = CourseTimeSlot(CourseID="1305", DateTime=51)
@@ -210,17 +278,36 @@ session.commit()
 
 toAdd = []
 
-prof1 = Professor(ProfID="1060", ProfName="Dr Visit", Email="visit@kmitl.ac.th", Password="1060")
-prof2 = Professor(ProfID="1061", ProfName="Dr Ukrit", Email="ukrit@kmitl.ac.th", Password="1061")
-prof3 = Professor(ProfID="1062", ProfName="Dr Tui", Email="ajtui@kmitl.ac.th", Password="1062")
+prof1 = Professor(
+    ProfID="1060",
+    ProfName="Dr Visit",
+    Email="visit@kmitl.ac.th",
+    Password="1060",
+)
+prof2 = Professor(
+    ProfID="1061",
+    ProfName="Dr Ukrit",
+    Email="ukrit@kmitl.ac.th",
+    Password="1061",
+)
+prof3 = Professor(
+    ProfID="1062",
+    ProfName="Dr Tui",
+    Email="ajtui@kmitl.ac.th",
+    Password="1062",
+)
 
 toAdd.append(prof1)
 toAdd.append(prof2)
 toAdd.append(prof3)
 
-admin1 = Admin(AdminID="8547", AdminName="Ad Min", Email="admin@kmitl.ac.th", Password="123")
+admin1 = Admin(
+    AdminID="8547",
+    AdminName="Ad Min",
+    Email="admin@kmitl.ac.th",
+    Password="123",
+)
 
 toAdd.append(admin1)
 session.add_all(toAdd)
 """
-

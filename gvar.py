@@ -1,29 +1,26 @@
-# This Python file uses the following encoding: utf-8
 # Global Variables are stored here
 
-from sqliteDB import session, Professor, Course, Room
+from sqliteDB import Course, Professor, Room, session
 
 username_read = "Guest"
 
-scheduleHeader = [ 'Location', 'Date', 'Time', 'ClassID', 'Class', 'Lecturer']
-scheduleTableList = [
-    ['','','','','','']
+scheduleHeader = ["Location", "Date", "Time", "ClassID", "Class", "Lecturer"]
+scheduleTableList = [["", "", "", "", "", ""]]
+courseHeader = [
+    "Course ID",
+    "Course Name",
+    "Class Capacity",
+    "Lecturer",
+    "Classroom Type",
 ]
-courseHeader = ['Course ID', 'Course Name', 'Class Capacity', 'Lecturer', 'Classroom Type']
-courseTableList = [
-    ['','','','','']
-]
-profHeader = ['Lecturer ID', 'Lecturer Name', 'Email', 'Password']
-profTableList = [
-    ['','','','']
-]
-roomHeader = ['Room ID', 'Room Capacity', 'Classroom Type']
-roomTableList = [
-    ['','','']
-]
-date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-time = ['09:00-12:00', '13:00-16:00']
-roomType = ['Lecture', 'ComLab']
+courseTableList = [["", "", "", "", ""]]
+profHeader = ["Lecturer ID", "Lecturer Name", "Email", "Password"]
+profTableList = [["", "", "", ""]]
+roomHeader = ["Room ID", "Room Capacity", "Classroom Type"]
+roomTableList = [["", "", ""]]
+date = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+time = ["09:00-12:00", "13:00-16:00"]
+roomType = ["Lecture", "ComLab"]
 
 profList = []
 

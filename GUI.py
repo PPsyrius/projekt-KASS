@@ -1,38 +1,37 @@
-# This Python file uses the following encoding: utf-8
-import sys
-import os
 import datetime
+import os
+import sys
 
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
-from PySide6.QtWidgets import QTableView, QLineEdit, QComboBox
-from PySide6.QtCore import QFile, QTimer, QAbstractTableModel, Qt
-from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QAbstractTableModel, QFile, Qt, QTimer
 from PySide6.QtGui import QIcon
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import (QApplication, QComboBox, QLabel, QLineEdit,
+                               QPushButton, QTableView, QWidget)
 
-from gvar import username_read, scheduleHeader, scheduleTableList, courseHeader
-from gvar import courseTableList, profHeader, profTableList, roomHeader
-from gvar import roomTableList, date, time, roomType, profList, profIDList
-from gvar import courseList, roomList, niceConflict
-from gvar import selectedCourseList
-from algo import generate, readyToGenerate, NiceConflict
-from algo import NiceSavedTable, RemoveCourseFromFreeRoomDict
-from messageboxes import CreateDetailedErrorMSGBox, CreateErrorMSGBox, CreateStatusMSGBox
+from algo import NiceConflict, NiceSavedTable, NiceTimeTable, readyToGenerate
+from gvar import (courseHeader, courseList, courseTableList, profHeader,
+                  profIDList, profList, profTableList, roomHeader, roomList,
+                  roomTableList, roomType, scheduleHeader, scheduleTableList,
+                  selectedCourseList, username_read)
+from messageboxes import (CreateDetailedErrorMSGBox, CreateErrorMSGBox,
+                          CreateStatusMSGBox)
 from pdfWriter import exportPdf
-from sqliteDB import session, Professor, Course, Room
+from sqliteDB import Admin, Course, CourseTimeSlot, Professor, Room, session
+
 
 class UI_form_login(QWidget):
     def __init__(self):
         super(UI_form_login, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Authentication')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Authentication")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.lb_logInStatus = self.findChild(QLabel, 'lb_logInStatus')
-        self.bt_logIn = self.findChild(QPushButton, 'bt_logIn')
-        self.bt_guestAccess = self.findChild(QPushButton, 'bt_guestAccess')
-        self.le_email = self.findChild(QLineEdit, 'le_email')
-        self.le_password = self.findChild(QLineEdit, 'le_password')
+        self.lb_logInStatus = self.findChild(QLabel, "lb_logInStatus")
+        self.bt_logIn = self.findChild(QPushButton, "bt_logIn")
+        self.bt_guestAccess = self.findChild(QPushButton, "bt_guestAccess")
+        self.le_email = self.findChild(QLineEdit, "le_email")
+        self.le_password = self.findChild(QLineEdit, "le_password")
 
         self.bt_logIn.clicked.connect(self.authenLogIn)
         self.bt_guestAccess.clicked.connect(self.guestLogIn)
@@ -62,19 +61,21 @@ class UI_form_login(QWidget):
         login_a = session.query(Admin).filter_by(Email=email_inp).first()
 
         if not (login_p or login_a):
-            self.updateStatusMessage("Status: Invalid User") # Email not exist
+            self.updateStatusMessage("Status: Invalid User")  # Email not exist
         elif login_a:
             if login_a.Password == password_inp and login_a.Email == email_inp:
-                self.updateStatusMessage("Status: Login Succesful") # Success (Admin)
+                self.updateStatusMessage("Status: Login Succesful")  # S (Adm)
                 username_read = login_a.AdminName
                 widget_menu.updateTable()
                 widget_menu.show()
                 widget_login.hide()
             else:
-                self.updateStatusMessage("Status: Mismatched Email and Password") # Other Errors
+                self.updateStatusMessage(  # Other Errors
+                    "Status: Mismatched Email and Password"
+                )
         elif login_p:
             if login_p.Password == password_inp and login_p.Email == email_inp:
-                self.updateStatusMessage("Status: Login Succesful") # Success (Professor)
+                self.updateStatusMessage("Status: Login Succesful")  # S (Prof)
                 username_read = login_p.ProfName
 
                 global niceConflict
@@ -82,15 +83,22 @@ class UI_form_login(QWidget):
                 if username_read in niceConflict:
                     conf = ""
                     for nc in niceConflict[username_read]:
-                        conf+= nc + "\n"
-                    CreateDetailedErrorMSGBox("You have Timetable Conflict!",conf,"The following classes needed to be re-schedule:")
+                        conf += nc + "\n"
+                    CreateDetailedErrorMSGBox(
+                        "You have Timetable Conflict!",
+                        conf,
+                        "The following classes needed to be re-schedule:",
+                    )
                 widget_menu_prof.updateTable()
                 widget_menu_prof.show()
                 widget_login.hide()
             else:
-                self.updateStatusMessage("Status: Mismatched Email and Password") # Other Errors
+                self.updateStatusMessage(  # Other Errors
+                    "Status: Mismatched Email and Password"
+                )
         else:
-            self.updateStatusMessage("Status: Unknown Error!") # Other Errors
+            self.updateStatusMessage("Status: Unknown Error!")  # Other Errors
+
     def guestLogIn(self):
         widget_menu_guest.updateTable()
         widget_menu_guest.show()
@@ -102,25 +110,25 @@ class UI_form_pick_timeslot(QWidget):
         super(UI_form_pick_timeslot, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Pick Timeslot')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Pick Timeslot")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.cb_currentSubject = self.findChild(QComboBox, 'cb_currentSubject')
-        self.bt_11 = self.findChild(QPushButton, 'bt_11')
-        self.bt_21 = self.findChild(QPushButton, 'bt_21')
-        self.bt_31 = self.findChild(QPushButton, 'bt_31')
-        self.bt_41 = self.findChild(QPushButton, 'bt_41')
-        self.bt_51 = self.findChild(QPushButton, 'bt_51')
-        self.bt_12 = self.findChild(QPushButton, 'bt_12')
-        self.bt_22 = self.findChild(QPushButton, 'bt_22')
-        self.bt_32 = self.findChild(QPushButton, 'bt_32')
-        self.bt_42 = self.findChild(QPushButton, 'bt_42')
-        self.bt_52 = self.findChild(QPushButton, 'bt_52')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.lbb_ProfName = self.findChild(QLabel, 'lbb_ProfName')
-        self.lbb_NoStudents = self.findChild(QLabel, 'lbb_NoStudents')
-        self.lbb_RoomType = self.findChild(QLabel, 'lbb_RoomType')
-        self.lbb_CourseName = self.findChild(QLabel, 'lbb_CourseName')
+        self.cb_currentSubject = self.findChild(QComboBox, "cb_currentSubject")
+        self.bt_11 = self.findChild(QPushButton, "bt_11")
+        self.bt_21 = self.findChild(QPushButton, "bt_21")
+        self.bt_31 = self.findChild(QPushButton, "bt_31")
+        self.bt_41 = self.findChild(QPushButton, "bt_41")
+        self.bt_51 = self.findChild(QPushButton, "bt_51")
+        self.bt_12 = self.findChild(QPushButton, "bt_12")
+        self.bt_22 = self.findChild(QPushButton, "bt_22")
+        self.bt_32 = self.findChild(QPushButton, "bt_32")
+        self.bt_42 = self.findChild(QPushButton, "bt_42")
+        self.bt_52 = self.findChild(QPushButton, "bt_52")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.lbb_ProfName = self.findChild(QLabel, "lbb_ProfName")
+        self.lbb_NoStudents = self.findChild(QLabel, "lbb_NoStudents")
+        self.lbb_RoomType = self.findChild(QLabel, "lbb_RoomType")
+        self.lbb_CourseName = self.findChild(QLabel, "lbb_CourseName")
 
         self.updateSelectedCourseList()
 
@@ -160,21 +168,25 @@ class UI_form_pick_timeslot(QWidget):
     def updateSelectedCourseList(self):
         global selectedCourseList
         selectedCourseList = ["--Select Here--"]
-        for c in session.query(Course).filter_by(ProfName=username_read).order_by(Course.CourseID):
+        for c in (
+            session.query(Course)
+            .filter_by(ProfName=username_read)
+            .order_by(Course.CourseID)
+        ):  #
             selectedCourseList.append(c.CourseID)
         self.cb_currentSubject.clear()
         self.cb_currentSubject.addItems(selectedCourseList)
 
     def updateDB(self):
-        self.lbb_ProfName.setText('-')
-        self.lbb_NoStudents.setText('-')
-        self.lbb_RoomType.setText('-')
-        self.lbb_CourseName.setText('-')
+        self.lbb_ProfName.setText("-")
+        self.lbb_NoStudents.setText("-")
+        self.lbb_RoomType.setText("-")
+        self.lbb_CourseName.setText("-")
 
         cID = self.cb_currentSubject.currentText()
-        if cID!= "--Select Here--":
+        if cID != "--Select Here--":
             c = session.query(Course).filter_by(CourseID=cID).first()
-            if c!=None:
+            if c is not None:
                 self.lbb_ProfName.setText(c.ProfName)
                 self.lbb_NoStudents.setText(str(c.NoStudents))
                 self.lbb_RoomType.setText(c.RoomType)
@@ -195,110 +207,164 @@ class UI_form_pick_timeslot(QWidget):
         self.bt_52.setChecked(False)
 
         cID = self.cb_currentSubject.currentText()
-        if cID!= "--Select Here--":
-            for ts in session.query(CourseTimeSlot).filter_by(CourseID=cID).order_by(CourseTimeSlot.DateTime):
-                if ts.DateTime==11:
+        if cID != "--Select Here--":
+            for ts in (
+                session.query(CourseTimeSlot)
+                .filter_by(CourseID=cID)
+                .order_by(CourseTimeSlot.DateTime)
+            ):
+                if ts.DateTime == 11:
                     self.bt_11.setChecked(True)
-                elif ts.DateTime==21:
+                elif ts.DateTime == 21:
                     self.bt_21.setChecked(True)
-                elif ts.DateTime==31:
+                elif ts.DateTime == 31:
                     self.bt_31.setChecked(True)
-                elif ts.DateTime==41:
+                elif ts.DateTime == 41:
                     self.bt_41.setChecked(True)
-                elif ts.DateTime==51:
+                elif ts.DateTime == 51:
                     self.bt_51.setChecked(True)
-                elif ts.DateTime==12:
+                elif ts.DateTime == 12:
                     self.bt_12.setChecked(True)
-                elif ts.DateTime==22:
+                elif ts.DateTime == 22:
                     self.bt_22.setChecked(True)
-                elif ts.DateTime==32:
+                elif ts.DateTime == 32:
                     self.bt_32.setChecked(True)
-                elif ts.DateTime==42:
+                elif ts.DateTime == 42:
                     self.bt_42.setChecked(True)
-                elif ts.DateTime==52:
+                elif ts.DateTime == 52:
                     self.bt_52.setChecked(True)
 
     def BtToggleState(self):
         cID = self.cb_currentSubject.currentText()
-        if cID!= "--Select Here--":
+        if cID != "--Select Here--":
             sender = self.sender()
-            print(self.sender().text())
+            # print(self.sender().text())
 
-            ## Toggle Status ##
+            # Toggle Status
             if sender.isChecked():
-                sender.setChecked(True)     # Select Timeslot
+                sender.setChecked(True)  # Select Timeslot
             else:
-                sender.setChecked(False)    # Deselect Timeslot
+                sender.setChecked(False)  # Deselect Timeslot
 
             if sender == self.bt_11:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=11)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=11).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=11)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_21:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=21)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=21).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=21)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_31:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=31)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=31).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=31)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_41:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=41)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=41).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=41)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_51:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=51)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=51).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=51)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_12:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=12)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=12).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=12)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_22:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=22)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=22).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=22)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_32:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=32)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=32).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=32)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_42:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=42)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=42).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=42)
+                        .first()
+                    )
                     session.delete(ctss)
             elif sender == self.bt_52:
                 if sender.isChecked():
                     ctss = CourseTimeSlot(CourseID=cID, DateTime=52)
                     session.add(ctss)
                 else:
-                    ctss = session.query(CourseTimeSlot).filter_by(CourseID=cID).filter_by(DateTime=52).first()
+                    ctss = (
+                        session.query(CourseTimeSlot)
+                        .filter_by(CourseID=cID)
+                        .filter_by(DateTime=52)
+                        .first()
+                    )
                     session.delete(ctss)
             session.commit()
 
@@ -312,14 +378,14 @@ class UI_course_remove(QWidget):
         super(UI_course_remove, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Remove Course')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Remove Course")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
-        self.table_courseList = self.findChild(QTableView, 'table_courseList')
+        self.le_courseID = self.findChild(QLineEdit, "le_courseID")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_remove = self.findChild(QPushButton, "bt_remove")
+        self.table_courseList = self.findChild(QTableView, "table_courseList")
 
         self.bt_back.clicked.connect(self.previousPage)
         self.bt_remove.clicked.connect(self.removeCourse)
@@ -347,7 +413,13 @@ class UI_course_remove(QWidget):
         global courseTableList
         courseTableList = []
         for c in session.query(Course).order_by(Course.CourseID):
-            c_done = [c.CourseID,c.CourseName,c.NoStudents,c.ProfName,c.RoomType]
+            c_done = [
+                c.CourseID,
+                c.CourseName,
+                c.NoStudents,
+                c.ProfName,
+                c.RoomType,
+            ]
             courseTableList.append(c_done)
 
     def updateTable(self):
@@ -362,13 +434,13 @@ class UI_course_remove(QWidget):
 
         cd = session.query(Course).filter_by(CourseID=courseID_inp).first()
 
-        if not courseTableList: # No DB Entry
-            CreateWarningMSGBox("No Course in DB by this user!")
-        elif courseID_inp=="": # Update Table
+        if not courseTableList:  # No DB Entry
+            CreateErrorMSGBox("No Course in DB by this user!")
+        elif courseID_inp == "":  # Update Table
             CreateStatusMSGBox("Table Updated!")
-        elif not cd: # CourseID not exist!
-            CreateWarningMSGBox("Invalid Course ID!")
-        else: # Status
+        elif not cd:  # CourseID not exist!
+            CreateErrorMSGBox("Invalid Course ID!")
+        else:  # Status
             CreateStatusMSGBox("Course Removed!")
             session.delete(cd)
 
@@ -380,7 +452,7 @@ class UI_course_remove(QWidget):
         widget_menu.show()
         widget_course_remove.hide()
         widget_course_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
 
 
 class UI_course_add(QWidget):
@@ -388,18 +460,18 @@ class UI_course_add(QWidget):
         super(UI_course_add, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Add Course')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Add Course")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_courseID = self.findChild(QLineEdit, 'le_courseID')
-        self.le_courseName = self.findChild(QLineEdit, 'le_courseName')
-        self.le_capacity = self.findChild(QLineEdit, 'le_capacity')
-        self.cb_prof = self.findChild(QComboBox, 'cb_prof')
-        self.cb_roomtype = self.findChild(QComboBox, 'cb_roomtype')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_add = self.findChild(QPushButton, 'bt_add')
-        self.table_courseList = self.findChild(QTableView, 'table_courseList')
+        self.le_courseID = self.findChild(QLineEdit, "le_courseID")
+        self.le_courseName = self.findChild(QLineEdit, "le_courseName")
+        self.le_capacity = self.findChild(QLineEdit, "le_capacity")
+        self.cb_prof = self.findChild(QComboBox, "cb_prof")
+        self.cb_roomtype = self.findChild(QComboBox, "cb_roomtype")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_add = self.findChild(QPushButton, "bt_add")
+        self.table_courseList = self.findChild(QTableView, "table_courseList")
 
         self.cb_prof.addItems(profList)
         self.cb_roomtype.addItems(roomType)
@@ -429,7 +501,13 @@ class UI_course_add(QWidget):
         global courseTableList
         courseTableList = []
         for c in session.query(Course).order_by(Course.CourseID):
-            c_done = [c.CourseID,c.CourseName,c.NoStudents,c.ProfName,c.RoomType]
+            c_done = [
+                c.CourseID,
+                c.CourseName,
+                c.NoStudents,
+                c.ProfName,
+                c.RoomType,
+            ]
             courseTableList.append(c_done)
 
     def updateTable(self):
@@ -446,21 +524,27 @@ class UI_course_add(QWidget):
         prof_inp = self.cb_prof.currentText()
         roomtype_inp = self.cb_roomtype.currentText()
 
-        if not courseTableList: # Empty Table
-            CreateWarningMSGBox("No Course in DB by this user!")
-        elif courseID_inp=="": # Pull Data
+        if not courseTableList:  # Empty Table
+            CreateErrorMSGBox("No Course in DB by this user!")
+        elif courseID_inp == "":  # Pull Data
             CreateStatusMSGBox("Table Updated!")
-        elif courseID_inp in courseList: # CourseID Exists
+        elif courseID_inp in courseList:  # CourseID Exists
             CreateErrorMSGBox("Course ID Already Exists!")
-        elif courseName_inp=="" or capacity_inp=="": # Blank slots
+        elif courseName_inp == "" or capacity_inp == "":  # Blank slots
             CreateErrorMSGBox("Blank Data Slot(s)!")
-        elif not capacity_inp.isdecimal(): # Capacity Not Integer
+        elif not capacity_inp.isdecimal():  # Capacity Not Integer
             CreateErrorMSGBox("Capacity must be Integer!")
-        elif int(capacity_inp)<=0: # <=0
+        elif int(capacity_inp) <= 0:  # <=0
             CreateErrorMSGBox("Capacity must be Positive!")
-        else: # Success
+        else:  # Success
             CreateStatusMSGBox("Course Added!")
-            ca = Course(CourseID=courseID_inp, CourseName=courseName_inp, NoStudents=int(capacity_inp), ProfName=prof_inp, RoomType=roomtype_inp)
+            ca = Course(
+                CourseID=courseID_inp,
+                CourseName=courseName_inp,
+                NoStudents=int(capacity_inp),
+                ProfName=prof_inp,
+                RoomType=roomtype_inp,
+            )
             session.add(ca)
         self.updateTable()
         self.updateCourseList()
@@ -470,7 +554,7 @@ class UI_course_add(QWidget):
         widget_menu.show()
         widget_course_add.hide()
         widget_course_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_course_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
 
 
 class UI_room_remove(QWidget):
@@ -478,14 +562,14 @@ class UI_room_remove(QWidget):
         super(UI_room_remove, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Remove Room')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Remove Room")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
-        self.table_roomList = self.findChild(QTableView, 'table_roomList')
+        self.le_roomID = self.findChild(QLineEdit, "le_roomID")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_remove = self.findChild(QPushButton, "bt_remove")
+        self.table_roomList = self.findChild(QTableView, "table_roomList")
 
         self.bt_back.clicked.connect(self.previousPage)
         self.bt_remove.clicked.connect(self.removeRoom)
@@ -513,7 +597,7 @@ class UI_room_remove(QWidget):
         global roomTableList
         roomTableList = []
         for r in session.query(Room).order_by(Room.RoomID):
-            r_done = [r.RoomID,r.Capacity,r.RoomType]
+            r_done = [r.RoomID, r.Capacity, r.RoomType]
             roomTableList.append(r_done)
 
     def updateTable(self):
@@ -528,11 +612,11 @@ class UI_room_remove(QWidget):
 
         rd = session.query(Room).filter_by(RoomID=roomID_inp).first()
 
-        if not roomTableList: # No DB Entry
+        if not roomTableList:  # No DB Entry
             CreateErrorMSGBox("No room in this DB!")
-        elif roomID_inp=="": # Update Table
+        elif roomID_inp == "":  # Update Table
             CreateStatusMSGBox("Table Updated!")
-        elif not rd: # RoomID not exist!
+        elif not rd:  # RoomID not exist!
             CreateErrorMSGBox("Invalid Room ID!")
         else:
             CreateStatusMSGBox("Room Removed!")
@@ -546,7 +630,7 @@ class UI_room_remove(QWidget):
         widget_menu.show()
         widget_room_remove.hide()
         widget_room_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
 
 
 class UI_room_add(QWidget):
@@ -554,16 +638,16 @@ class UI_room_add(QWidget):
         super(UI_room_add, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Add Room')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Add Room")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_roomID = self.findChild(QLineEdit, 'le_roomID')
-        self.le_capacity = self.findChild(QLineEdit, 'le_capacity')
-        self.cb_roomtype = self.findChild(QComboBox, 'cb_roomtype')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_add = self.findChild(QPushButton, 'bt_add')
-        self.table_roomList = self.findChild(QTableView, 'table_roomList')
+        self.le_roomID = self.findChild(QLineEdit, "le_roomID")
+        self.le_capacity = self.findChild(QLineEdit, "le_capacity")
+        self.cb_roomtype = self.findChild(QComboBox, "cb_roomtype")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_add = self.findChild(QPushButton, "bt_add")
+        self.table_roomList = self.findChild(QTableView, "table_roomList")
 
         self.cb_roomtype.addItems(roomType)
         self.bt_back.clicked.connect(self.previousPage)
@@ -592,7 +676,7 @@ class UI_room_add(QWidget):
         global roomTableList
         roomTableList = []
         for r in session.query(Room).order_by(Room.RoomID):
-            r_done = [r.RoomID,r.Capacity,r.RoomType]
+            r_done = [r.RoomID, r.Capacity, r.RoomType]
             roomTableList.append(r_done)
 
     def updateTable(self):
@@ -607,21 +691,25 @@ class UI_room_add(QWidget):
         capacity_inp = self.le_capacity.text()
         roomtype_inp = self.cb_roomtype.currentText()
 
-        if not roomTableList: # Empty Table
+        if not roomTableList:  # Empty Table
             CreateErrorMSGBox("No room in DB!")
-        elif roomID_inp=="": # Pull Data
+        elif roomID_inp == "":  # Pull Data
             CreateStatusMSGBox("Table Updated!")
-        elif roomID_inp in roomList: # CourseID Exists
+        elif roomID_inp in roomList:  # CourseID Exists
             CreateErrorMSGBox("Room ID Already Exists!")
-        elif capacity_inp=="": # Blank slots
+        elif capacity_inp == "":  # Blank slots
             CreateErrorMSGBox("Blank Data Slot(s)!")
-        elif not capacity_inp.isdecimal(): # Capacity Not Integer
+        elif not capacity_inp.isdecimal():  # Capacity Not Integer
             CreateErrorMSGBox("Capacity must be Integer!")
-        elif int(capacity_inp)<=0: # <=0
+        elif int(capacity_inp) <= 0:  # <=0
             CreateErrorMSGBox("Capacity must be Positive!")
-        else: # Success
+        else:  # Success
             CreateStatusMSGBox("Room Added!")
-            ra = Room(RoomID=roomID_inp, Capacity=int(capacity_inp), RoomType=roomtype_inp)
+            ra = Room(
+                RoomID=roomID_inp,
+                Capacity=int(capacity_inp),
+                RoomType=roomtype_inp,
+            )
             session.add(ra)
         self.updateTable()
         self.updateRoomList()
@@ -631,21 +719,22 @@ class UI_room_add(QWidget):
         widget_menu.show()
         widget_room_add.hide()
         widget_room_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_room_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
+
 
 class UI_prof_remove(QWidget):
     def __init__(self):
         super(UI_prof_remove, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Remove Lecturer')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Remove Lecturer")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_profID = self.findChild(QLineEdit, 'le_profID')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_remove = self.findChild(QPushButton, 'bt_remove')
-        self.table_profList = self.findChild(QTableView, 'table_profList')
+        self.le_profID = self.findChild(QLineEdit, "le_profID")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_remove = self.findChild(QPushButton, "bt_remove")
+        self.table_profList = self.findChild(QTableView, "table_profList")
 
         self.bt_back.clicked.connect(self.previousPage)
         self.bt_remove.clicked.connect(self.removeProf)
@@ -678,7 +767,7 @@ class UI_prof_remove(QWidget):
         global profTableList
         profTableList = []
         for p in session.query(Professor).order_by(Professor.ProfID):
-            p_done = [p.ProfID,p.ProfName,p.Email,p.Password]
+            p_done = [p.ProfID, p.ProfName, p.Email, p.Password]
             profTableList.append(p_done)
 
     def updateTable(self):
@@ -693,11 +782,11 @@ class UI_prof_remove(QWidget):
 
         pd = session.query(Professor).filter_by(ProfID=profID_inp).first()
 
-        if not profTableList: # No DB Entry
+        if not profTableList:  # No DB Entry
             CreateErrorMSGBox("No Lecturer in this DB!")
-        elif profID_inp=="": # Update Table
+        elif profID_inp == "":  # Update Table
             CreateStatusMSGBox("Table Updated!")
-        elif not pd: # RoomID not exist!
+        elif not pd:  # RoomID not exist!
             CreateErrorMSGBox("Invalid Lecturer ID!")
         else:
             CreateStatusMSGBox("Lecturer Removed!")
@@ -711,7 +800,7 @@ class UI_prof_remove(QWidget):
         widget_menu.show()
         widget_prof_remove.hide()
         widget_prof_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
 
 
 class UI_prof_add(QWidget):
@@ -719,17 +808,17 @@ class UI_prof_add(QWidget):
         super(UI_prof_add, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Add Lecturer')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Add Lecturer")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.le_profID = self.findChild(QLineEdit, 'le_profID')
-        self.le_profName = self.findChild(QLineEdit, 'le_profName')
-        self.le_email = self.findChild(QLineEdit, 'le_email')
-        self.le_password = self.findChild(QLineEdit, 'le_password')
-        self.lb_statusMessage = self.findChild(QLabel, 'lb_statusMessage')
-        self.bt_back = self.findChild(QPushButton, 'bt_back')
-        self.bt_add = self.findChild(QPushButton, 'bt_add')
-        self.table_profList = self.findChild(QTableView, 'table_profList')
+        self.le_profID = self.findChild(QLineEdit, "le_profID")
+        self.le_profName = self.findChild(QLineEdit, "le_profName")
+        self.le_email = self.findChild(QLineEdit, "le_email")
+        self.le_password = self.findChild(QLineEdit, "le_password")
+        self.lb_statusMessage = self.findChild(QLabel, "lb_statusMessage")
+        self.bt_back = self.findChild(QPushButton, "bt_back")
+        self.bt_add = self.findChild(QPushButton, "bt_add")
+        self.table_profList = self.findChild(QTableView, "table_profList")
 
         self.bt_back.clicked.connect(self.previousPage)
         self.bt_add.clicked.connect(self.addProf)
@@ -762,7 +851,7 @@ class UI_prof_add(QWidget):
         global profTableList
         profTableList = []
         for p in session.query(Professor).order_by(Professor.ProfID):
-            p_done = [p.ProfID,p.ProfName,p.Email,p.Password]
+            p_done = [p.ProfID, p.ProfName, p.Email, p.Password]
             profTableList.append(p_done)
 
     def updateTable(self):
@@ -778,17 +867,26 @@ class UI_prof_add(QWidget):
         email_inp = self.le_email.text()
         password_inp = self.le_password.text()
 
-        if not profTableList: # Empty Table
+        if not profTableList:  # Empty Table
             CreateErrorMSGBox("No Lecturer in DB!")
-        elif profID_inp=="": # Pull Data
+        elif profID_inp == "":  # Pull Data
             CreateStatusMSGBox("Table Updated!")
-        elif profID_inp in profIDList or profName_inp in profList: # ProfID Exists
+        elif (
+            profID_inp in profIDList or profName_inp in profList
+        ):  # ProfID # type: ignore # noqa: E501
             CreateErrorMSGBox("Lecturer ID Already Exists!")
-        elif profName_inp=="" or password_inp=="" or email_inp=="": # Blank slots
+        elif (
+            profName_inp == "" or password_inp == "" or email_inp == ""
+        ):  # Blank # type: ignore # noqa: E501
             CreateErrorMSGBox("Blank Data Slot(s)!")
-        else: # Success
+        else:  # Success
             CreateStatusMSGBox("Lecturer Added!")
-            pa = Professor(ProfID=profID_inp, ProfName=profName_inp, Email=email_inp, Password=password_inp,)
+            pa = Professor(
+                ProfID=profID_inp,
+                ProfName=profName_inp,
+                Email=email_inp,
+                Password=password_inp,
+            )
             session.add(pa)
         self.updateTable()
         self.updateProfList()
@@ -798,7 +896,7 @@ class UI_prof_add(QWidget):
         widget_menu.show()
         widget_prof_add.hide()
         widget_prof_add.updateStatusMessage("Click Add Once To Pull Data")
-        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")
+        widget_prof_remove.updateStatusMessage("Click Remove Once To Pull Data")  # type: ignore # noqa: E501
 
 
 class UI_form_main(QWidget):
@@ -806,24 +904,29 @@ class UI_form_main(QWidget):
         super(UI_form_main, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: " + username_read)  # type: ignore # noqa: E501
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
-        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
-        self.bt_addCourse = self.findChild(QPushButton, 'bt_addCourse')
-        self.bt_removeCourse = self.findChild(QPushButton, 'bt_removeCourse')
-        self.bt_addProf = self.findChild(QPushButton, 'bt_addProf')
-        self.bt_removeProf = self.findChild(QPushButton, 'bt_removeProf')
-        self.bt_addRoom = self.findChild(QPushButton, 'bt_addRoom')
-        self.bt_removeRoom = self.findChild(QPushButton, 'bt_removeRoom')
-        self.bt_generateTable = self.findChild(QPushButton, 'bt_generateTable')
-        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
-        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
-        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+        self.lb_welcome = self.findChild(QLabel, "lb_welcome")
+        self.lb_currentDateTime = self.findChild(QLabel, "lb_currentDateTime")
+        self.bt_addCourse = self.findChild(QPushButton, "bt_addCourse")
+        self.bt_removeCourse = self.findChild(QPushButton, "bt_removeCourse")
+        self.bt_addProf = self.findChild(QPushButton, "bt_addProf")
+        self.bt_removeProf = self.findChild(QPushButton, "bt_removeProf")
+        self.bt_addRoom = self.findChild(QPushButton, "bt_addRoom")
+        self.bt_removeRoom = self.findChild(QPushButton, "bt_removeRoom")
+        self.bt_generateTable = self.findChild(QPushButton, "bt_generateTable")
+        self.bt_exportPDF = self.findChild(QPushButton, "bt_exportPDF")
+        self.bt_logOut = self.findChild(QPushButton, "bt_logOut")
+        self.table_wholeSchedule = self.findChild(
+            QTableView,
+            "table_wholeSchedule",
+        )
 
-        self.lb_welcome.setText("Welcome, " + username_read )
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_welcome.setText("Welcome, " + username_read)
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
         self.bt_addCourse.clicked.connect(self.addCourse)
         self.bt_removeCourse.clicked.connect(self.removeCourse)
         self.bt_addProf.clicked.connect(self.addProf)
@@ -849,12 +952,14 @@ class UI_form_main(QWidget):
         ui_file.close()
 
     def updateCurrentTime(self):
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
         self.updateDB()
 
     def updateDB(self):
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-        self.lb_welcome.setText("Welcome, " + username_read )
+        self.setWindowTitle("KMITL Academic Scheduler System: " + username_read)  # type: ignore # noqa: E501
+        self.lb_welcome.setText("Welcome, " + username_read)
 
     def addCourse(self):
         widget_course_add.show()
@@ -905,10 +1010,14 @@ class UI_form_main(QWidget):
                 self.updateTable()
                 CreateStatusMSGBox("Timetable Creation Succesful!")
             else:
-                perpetratorList=""
+                perpetratorList = ""
                 for entry in NiceConflict():
-                    perpetratorList+=entry+"\n"
-                CreateDetailedErrorMSGBox("Timetable Conflict Founded!",perpetratorList,"The Following Lecturers must change their timetable:")
+                    perpetratorList += entry + "\n"
+                CreateDetailedErrorMSGBox(
+                    "Timetable Conflict Founded!",
+                    perpetratorList,
+                    "The Following Lecturers must change their timetable:",
+                )
         else:
             CreateErrorMSGBox("One of the classes lack assigned-timeslot!")
 
@@ -922,23 +1031,32 @@ class UI_form_main(QWidget):
         widget_login.show()
         widget_menu.hide()
 
+
 class UI_form_main_prof(QWidget):
     def __init__(self):
         super(UI_form_main_prof, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: " + username_read)  # type: ignore # noqa: E501
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
-        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
-        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
-        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
-        self.bt_adjustTimetable = self.findChild(QPushButton, 'bt_adjustTimetable')
-        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+        self.lb_welcome = self.findChild(QLabel, "lb_welcome")
+        self.lb_currentDateTime = self.findChild(QLabel, "lb_currentDateTime")
+        self.bt_exportPDF = self.findChild(QPushButton, "bt_exportPDF")
+        self.bt_logOut = self.findChild(QPushButton, "bt_logOut")
+        self.bt_adjustTimetable = self.findChild(
+            QPushButton,
+            "bt_adjustTimetable",
+        )
+        self.table_wholeSchedule = self.findChild(
+            QTableView,
+            "table_wholeSchedule",
+        )
 
         self.lb_welcome.setText("Welcome, " + username_read)
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
         self.bt_exportPDF.clicked.connect(self.exportPDF)
         self.bt_logOut.clicked.connect(self.logOut)
         self.bt_adjustTimetable.clicked.connect(self.adjustTimetable)
@@ -958,12 +1076,14 @@ class UI_form_main_prof(QWidget):
         ui_file.close()
 
     def updateCurrentTime(self):
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
         self.updateDB()
 
     def updateDB(self):
-        self.setWindowTitle('KMITL Academic Scheduler System: ' + username_read )
-        self.lb_welcome.setText("Welcome, " + username_read )
+        self.setWindowTitle("KMITL Academic Scheduler System: " + username_read)  # type: ignore # noqa: E501
+        self.lb_welcome.setText("Welcome, " + username_read)
 
     def updateTable(self):
         table_model = MyTableModel(self, scheduleTableList, scheduleHeader)
@@ -973,7 +1093,11 @@ class UI_form_main_prof(QWidget):
     def adjustTimetable(self):
         if username_read in profList:
             selectedCourseList = []
-            for c in session.query(Course).filter_by(ProfName=username_read).order_by(Course.CourseID):
+            for c in (
+                session.query(Course)
+                .filter_by(ProfName=username_read)
+                .order_by(Course.CourseID)
+            ):
                 selectedCourseList.append(c.CourseID)
             if selectedCourseList:
                 widget_pick_timeslot.updateSelectedCourseList()
@@ -994,22 +1118,28 @@ class UI_form_main_prof(QWidget):
         widget_login.show()
         widget_menu_prof.hide()
 
+
 class UI_form_main_guest(QWidget):
     def __init__(self):
         super(UI_form_main_guest, self).__init__()
         self.load_ui()
 
-        self.setWindowTitle('KMITL Academic Scheduler System: Guess View')
-        self.setWindowIcon(QIcon('icon64.png'))
+        self.setWindowTitle("KMITL Academic Scheduler System: Guess View")
+        self.setWindowIcon(QIcon("icon64.png"))
 
-        self.lb_welcome = self.findChild(QLabel, 'lb_welcome')
-        self.lb_currentDateTime = self.findChild(QLabel, 'lb_currentDateTime')
-        self.bt_exportPDF = self.findChild(QPushButton, 'bt_exportPDF')
-        self.bt_logOut = self.findChild(QPushButton, 'bt_logOut')
-        self.table_wholeSchedule = self.findChild(QTableView, 'table_wholeSchedule')
+        self.lb_welcome = self.findChild(QLabel, "lb_welcome")
+        self.lb_currentDateTime = self.findChild(QLabel, "lb_currentDateTime")
+        self.bt_exportPDF = self.findChild(QPushButton, "bt_exportPDF")
+        self.bt_logOut = self.findChild(QPushButton, "bt_logOut")
+        self.table_wholeSchedule = self.findChild(
+            QTableView,
+            "table_wholeSchedule",
+        )
 
         self.lb_welcome.setText("Welcome, " + username_read)
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
         self.bt_exportPDF.clicked.connect(self.exportPDF)
         self.bt_logOut.clicked.connect(self.logOut)
 
@@ -1028,7 +1158,9 @@ class UI_form_main_guest(QWidget):
         ui_file.close()
 
     def updateCurrentTime(self):
-        self.lb_currentDateTime.setText(datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
+        self.lb_currentDateTime.setText(
+            datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        )
 
     def updateTable(self):
         global scheduleTableList
@@ -1049,6 +1181,7 @@ class UI_form_main_guest(QWidget):
         username_read = "Guest"
         widget_login.show()
         widget_menu_guest.hide()
+
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -1073,6 +1206,7 @@ class MyTableModel(QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.header[col]
         return None
+
 
 if __name__ == "__main__":
     app = QApplication([])
